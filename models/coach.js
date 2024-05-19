@@ -4,7 +4,7 @@ const { Schema, model } = mongoose;
 const coachSchema = new Schema(
     {
         NomCoach: {
-            type: Sting,
+            type: String,
             required: true
         },
         PrénomCoach: {

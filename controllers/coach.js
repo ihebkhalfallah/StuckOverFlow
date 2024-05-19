@@ -68,7 +68,8 @@ export function deleteOne(req, res) {
 }       
 
 
-export async function checkDisponibilite(dateEvent, heureDebutEvent, heureFinEvent, nomCoach, prénomCoach) {
+export async function checkDisponibilite(
+    dateEvent, heureDebutEvent, heureFinEvent, nomCoach, prénomCoach) {
     const coach = await Coach.findOne({ NomCoach: nomCoach, PrénomCoach: prénomCoach });
     if (!coach) {
         throw new Error("Le coach spécifié n'existe pas.");
