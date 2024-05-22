@@ -39,7 +39,16 @@ const userSchema = new Schema({
         type:String,
     },
     phoneNumber:{
+        type:Number,
+        unique:true
+    },
+    weight:{
         type:Number
+    }
+    ,height:{
+        type:String
+    },rating:{
+        type:String
     }
     },
     {
