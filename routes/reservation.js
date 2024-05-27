@@ -19,7 +19,8 @@ router
 
 router
     .route("/")
-    .get(getAll);
+    .get(getAll)
+    .post(create);
 
 router.post('/reservations', create);
 export default router;

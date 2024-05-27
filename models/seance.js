@@ -10,7 +10,7 @@ const seanceSchema = new Schema(
         TypeEvent: {
             type: [{
                 type: String,
-                enum: ['PRIVATECOURSE', 'DANCECOURSE', 'BODYCOMBATCOURSE','SPINNINGCOURSE']
+                enum: ['PRIVATE_COURSE', 'DANCE_COURSE', 'BODYCOMBAT_COURSE','SPINNING_COURSE', 'ORIONTAL_DANCE_COURSE']
             }],
             required: true
         },
@@ -19,7 +19,7 @@ const seanceSchema = new Schema(
            required: true
         },
         DateEvent: {
-            type: String,
+            type: Date,
             required: true
         },
         NbrParticipant: {
@@ -35,17 +35,21 @@ const seanceSchema = new Schema(
             //time??
             required: true
         },
+        Durée : {
+            type: Number,
+            required: true
+        },
         HeureFinEvent: {
             type: Date, //time??
-           required: true
+        //    required: true
         },
         // NomCoach: {
         //     type: String, //autre facon de faire?
-        //     //required: true
+        //     required: true
         // },
         // PrénomCoach: {
         //     type: String,
-        //     //required: true
+        //     required: true
         // },
         coach: {
             type: Schema.Types.ObjectId,

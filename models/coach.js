@@ -12,7 +12,7 @@ const coachSchema = new Schema(
             required: true
         },
         Disponible: {
-            type: Boolean,
+            type: Boolean , //= true,
             required: true
         },
         Spécialité: {

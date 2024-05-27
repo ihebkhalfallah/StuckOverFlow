@@ -1,17 +1,24 @@
 import { validationResult } from "express-validator";
-
+import mongoose from "mongoose";
 import Reservation from "../models/reservation.js";
 import Coach from "../models/coach.js";
 import Seance from "../models/seance.js";  
+import { checkDisponibilite } from "../controllers/coach.js";
+
+
 
 export const create = async (req, res) => {
     try {
         const { coach, seance } = req.body;
 
-        // Vérifiez que les IDs fournis sont valides
-        if (!mongoose.Types.ObjectId.isValid(coach) || !mongoose.Types.ObjectId.isValid(seance)) {
-            return res.status(400).json({ error: 'Invalid coach or seance ID' });
+        // Verif ID
+        if (!mongoose.Types.ObjectId.isValid(coach) ) {
+            return res.status(400).json({ error: 'Invalid coach ' });
         }
+
+       if (!mongoose.Types.ObjectId.isValid(seance)){
+            return res.status(400).json({ error: 'Invalid seance ' });
+       }
 
         const coachFound = await Coach.findById(coach);
         if (!coachFound) {
@@ -23,37 +30,38 @@ export const create = async (req, res) => {
             return res.status(404).json({ error: 'Seance not found' });
         }
 
+          // dispo
+          const isDisponible = await checkDisponibilite(coach, seanceFound.DateEvent, seanceFound.HeureDebutEvent, seanceFound.HeureFinEvent);
+          if (!isDisponible) {
+              return res.status(400).json({ error: 'Coach not available' });
+          }
+
+        //nbr places
+
+        if(seanceFound.NbrParticipant +1 >= seanceFound.Capacity){
+            return res.status(400).json({ error: 'Salle de sport full' });
+        }   
+
         const reservation = new Reservation({
             coach,
             seance
         });
 
+        coachFound.Disponible = false; //mich 9a3da tsir 
+        seanceFound.NbrParticipant += 1;
+       
+        await coachFound.save();
+        await seanceFound.save();
+
         await reservation.save();
-        res.status(201).json(reservation);
+        res.status(201).json(reservation , seanceFound, coachFound);
+        
+
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
 };
-// export async function create(coachId, seanceId) {
-//         const coach = await Coach.findById(coachId);
-//     if (!coach) {
-//         throw new Error('Coach not found');
-//     }
-//     //validation disponibilité coach fl méthode réserver
 
-//     const seance = await Seance.findById(seanceId);
-//     if (!seance) {
-//         throw new Error('Seance not found');
-//     }
-
-//     const reservation = new Reservation({
-//         coach: coachId,
-//         seance: seanceId
-//     });
-
-//     await reservation.save();
-//     return reservation;
-// };
 
 export function getAll(req, res) {
     Reservation.find({})

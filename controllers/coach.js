@@ -2,6 +2,7 @@ import { validationResult } from "express-validator";
 
 import Coach from "../models/coach.js";
 import Seance from '../models/seance.js'; 
+import schedule from 'node-schedule';
 
 export function getAll(req, res) {
     Coach.find({})
@@ -68,24 +69,36 @@ export function deleteOne(req, res) {
 }       
 
 
-export async function checkDisponibilite(
-    dateEvent, heureDebutEvent, heureFinEvent, nomCoach, prénomCoach) {
-    const coach = await Coach.findOne({ NomCoach: nomCoach, PrénomCoach: prénomCoach });
-    if (!coach) {
-        throw new Error("Le coach spécifié n'existe pas.");
-    }
+export async function checkDisponibilite(idCoach, dateEvent, heureDebutEvent, heureFinEvent) {
+    try {
+        const coach = await Coach.findById(idCoach);
 
-    const seance = await Seance.findOne({
-        DateEvent: dateEvent,
-        heureDebutEvent : heureDebutEvent,
-        heureFinEvent : heureFinEvent,
-        NomCoach: nomCoach,
-        PrénomCoach: prénomCoach
-    });
+        if (!coach) {
+            throw new Error("Le coach spécifié n'existe pas.");
+        }
 
-    if (seance) {
-        return false;
-    } else {
-        return true;
+        const date = new Date(dateEvent);
+        const heureDebut = new Date(`${dateEvent}T${heureDebutEvent}`);
+        const heureFin = new Date(`${dateEvent}T${heureFinEvent}`);
+
+        const seance = await Seance.findOne({
+            DateEvent: dateEvent,
+            HeureDebutEvent: heureDebutEvent,
+            HeureFinEvent: heureFinEvent,
+            Coach : coach
+        });
+
+        if (seance) {
+            return false;
+        } else {
+            return true;
+        }
+    } catch (error) {
+        throw new Error("Erreur lors de la vérification de la disponibilité : " + error.message);
     }
 }
+
+export function ResetJob () { schedule.scheduleJob('45 19 * * *', () => {
+    Coach.updateMany({}, { Disponible: true }).exec(); // Reset Disponibilite 
+  })};
+  

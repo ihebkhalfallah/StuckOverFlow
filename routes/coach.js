@@ -22,7 +22,7 @@ router
        body("NomCoach").isLength({ min: 3 }),
        body("PrénomCoach").isLength({ min: 3 }),
        body("Disponible").isBoolean(),
-       body("Spécialité").isLength({ min: 3 }),
+     body("Spécialité").isLength({ min: 3 }),
         create
     );
  
