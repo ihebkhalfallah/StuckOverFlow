@@ -49,6 +49,9 @@ const userSchema = new Schema({
         type:String
     },rating:{
         type:String
+    },active:{
+        type:Boolean,
+        default:true
     }
     },
     {

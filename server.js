@@ -7,6 +7,7 @@ import { errorHundler, notFoundError } from "./middlewares/errorr-handler.js";
 import userRoutes from "./routes/user.js";
 import coachRoutes from "./routes/coach.js";
 import nutritionnisteRoutes from "./routes/nutritionniste.js";
+import adminRoutes from "./routes/admin.js";
 
 dotenv.config({ path: ".env" });
 
@@ -35,6 +36,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use("/user", userRoutes);
 app.use("/coach", coachRoutes);
 app.use("/nutritionniste", nutritionnisteRoutes);
+app.use("/admin", adminRoutes);
 
 app.use(notFoundError);
 app.use(errorHundler);
