@@ -65,7 +65,7 @@ const getAllCoaches = async (req, res) => {
 const deleteCoach = async (req, res) => {
   try {
     const id = req.params.id;
-    const user = await User.findOneAndDelete(id);
+    const user = await User.findByIdAndDelete(id);
     if (!user) {
       return res.status(404).json({ message: "Coach not found" });
     }

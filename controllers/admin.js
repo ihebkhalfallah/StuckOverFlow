@@ -1,5 +1,6 @@
 import User from "../modules/user.js";
 import bcrypt from "bcrypt";
+import ApiError from "../utils/apiError.js";
 
 const createAdmin = async (req, res) => {
   const {
@@ -47,7 +48,7 @@ const getUser = async (req, res) => {
   }
 };
 
-const getAllAdmins = async (req, res) => {
+const getAllAccounts = async (req, res) => {
   try {
     const admins = await User.find({});
     res.status(200).json({ results: admins.length, data: admins });
@@ -55,12 +56,20 @@ const getAllAdmins = async (req, res) => {
     res.status(500).json({ message: "Server error", error: err.message });
   }
 };
+const getAllAdmins = async (req, res) => {
+  try {
+    const admins = await User.find({ role: "ADMIN" });
+    res.status(200).json({ results: admins.length, data: admins });
+  } catch (err) {
+    res.status(500).json({ message: "Server error", error: err.message });
+  }
+};
 const getAllUsers = async (req, res) => {
   try {
-    const users = await User.find({role: "USER"});
+    const users = await User.find({ role: "USER" });
     if (!users || users.length === 0) {
-        return res.status(404).json({ message: "Users not found" });
-      }
+      return res.status(404).json({ message: "Users not found" });
+    }
     res.status(200).json({ results: users.length, data: users });
   } catch (err) {
     res.status(500).json({ message: "Server error", error: err.message });
@@ -99,7 +108,7 @@ const getAllNutritionnistes = async (req, res) => {
 const deleteUser = async (req, res) => {
   try {
     const id = req.params.id;
-    const user = await User.findOneAndDelete(id);
+    const user = await User.findByIdAndDelete(id);
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
@@ -178,11 +187,15 @@ const desactiveAccount = async (req, res) => {
     return res.status(404).json({ message: "Account not found" });
   }
 
-  account = await User.findOneAndUpdate({ _id: id }, { active: false });
+  const newAccount = await User.findOneAndUpdate(
+    { _id: id },
+    { active: false }
+  );
   res.status(200).json({
-    response: `Account ${account.firstName} ${account.lastName} has been descativated`,
+    response: `Account ${newAccount.firstName} ${newAccount.lastName} has been descativated`,
   });
 };
+
 const reactiveAccount = async (req, res) => {
   const id = req.params.id;
   const account = await User.findById(id);
@@ -193,15 +206,30 @@ const reactiveAccount = async (req, res) => {
     return res.status(404).json({ message: "Account not found" });
   }
 
-  account = await User.findOneAndUpdate({ _id: id }, { active: true });
+  const newAccount = await User.findOneAndUpdate({ _id: id }, { active: true });
   res.status(200).json({
-    response: `Account ${account.firstName} ${account.lastName} has been reativated`,
+    response: `Account ${newAccount.firstName} ${newAccount.lastName} has been reativated`,
   });
+};
+
+const getUserByEmail = async (email) => {
+  if (!email) {
+    throw new ApiError("Email is required", 400);
+  }
+
+  const user = await User.findOne({ email });
+
+  if (!user) {
+    throw new ApiError("User not found", 404);
+  }
+
+  return user;
 };
 
 export {
   createAdmin,
   getUser,
+  getAllAccounts,
   getAllAdmins,
   getAllUsers,
   getAllCoaches,
@@ -210,5 +238,6 @@ export {
   updateAdmin,
   changePassword,
   desactiveAccount,
-  reactiveAccount
+  reactiveAccount,
+  getUserByEmail,
 };

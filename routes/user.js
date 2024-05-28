@@ -24,8 +24,8 @@ router.route("/signup").post(createuserValidator, createUser);
 
 router.route("").get(getAllUsers);
 router.route("/coaches").get(getAllCoaches);
+router.route("/nutritionniste").get(getAllNutritionnistes);
 router.route("/changepassword/:id").put(changepasswordvalidate, changePassword);
-
 router
   .route("/:id")
   .get(getuserValidator, getUser)

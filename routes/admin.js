@@ -1,17 +1,18 @@
 import express from "express";
 import {
-    createAdmin,
-    getUser,
-    getAllAdmins,
-    getAllUsers,
-    getAllCoaches,
-    getAllNutritionnistes,
-    deleteUser,
-    updateAdmin,
-    changePassword,
-    desactiveAccount,
-    reactiveAccount
-  } from "../controllers/admin.js";
+  createAdmin,
+  getUser,
+  getAllAdmins,
+  getAllUsers,
+  getAllCoaches,
+  getAllNutritionnistes,
+  deleteUser,
+  updateAdmin,
+  changePassword,
+  desactiveAccount,
+  reactiveAccount,
+  getAllAccounts,
+} from "../controllers/admin.js";
 
 import {
   getCoachValidator,
@@ -23,13 +24,13 @@ import {
 
 const router = express.Router();
 router.route("/createadmin").post(createCoachValidator, createAdmin);
-router.route("/").get(getAllAdmins);
+router.route("/").get(getAllAccounts);
+router.route("/admins").get(getAllAdmins);
 router.route("/users").get(getAllUsers);
 router.route("/coaches").get(getAllCoaches);
 router.route("/nutritionnistes").get(getAllNutritionnistes);
-router
-  .route("/changepassword/:id")
-  .put(changepasswordvalidate, changePassword);
+router.route("/changepassword/:id").put(changepasswordvalidate, changePassword);
+
 router.route("/desactivate/:id").put(desactiveAccount);
 router.route("/reactivate/:id").put(reactiveAccount);
 router

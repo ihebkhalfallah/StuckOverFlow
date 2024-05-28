@@ -24,6 +24,7 @@ router.route("/").get(getAllNutritionnistes);
 router
   .route("/changepassword/:id")
   .put(changepasswordvalidate, changePasswordNutritionnistes);
+
 router
   .route("/:id")
   .get(getNutritionnisteValidator, getNutritionniste)

@@ -67,7 +67,7 @@ const getAllNutritionnistes = async (req, res) => {
 const deleteNutritionnistes = async (req, res) => {
   try {
     const id = req.params.id;
-    const user = await User.findOneAndDelete(id);
+    const user = await User.findByIdAndDelete(id);
     if (!user) {
       return res.status(404).json({ message: "Nutritionnistes not found" });
     }

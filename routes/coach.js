@@ -22,6 +22,7 @@ router.route("/").get(getAllCoaches);
 router
   .route("/changepassword/:id")
   .put(changepasswordvalidate, changePasswordCoach);
+
 router
   .route("/:id")
   .get(getCoachValidator, getCoach)
