@@ -57,6 +57,13 @@ const userSchema = new Schema(
       type: Boolean,
       default: true,
     },
+    approvalCode: {
+      type: String,
+    },
+    isApproved: {
+      type: Boolean,
+      default: false,
+    },
   },
   {
     timestamps: true,

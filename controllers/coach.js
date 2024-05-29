@@ -1,5 +1,6 @@
 import User from "../modules/user.js";
 import bcrypt from "bcrypt";
+import { sendApprovalCode } from "../services/email.service.js";
 
 const createCoach = async (req, res) => {
   const {
@@ -15,7 +16,7 @@ const createCoach = async (req, res) => {
 
   try {
     const hashedPassword = await bcrypt.hash(password, 10);
-
+    const approvalCode = crypto.randomBytes(3).toString("hex");
     const user = new User({
       firstName,
       lastName,

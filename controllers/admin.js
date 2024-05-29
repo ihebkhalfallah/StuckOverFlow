@@ -1,6 +1,7 @@
 import User from "../modules/user.js";
 import bcrypt from "bcrypt";
 import ApiError from "../utils/apiError.js";
+import { sendApprovalCode } from "../services/email.service.js";
 
 const createAdmin = async (req, res) => {
   const {
@@ -16,7 +17,7 @@ const createAdmin = async (req, res) => {
 
   try {
     const hashedPassword = await bcrypt.hash(password, 10);
-
+    const approvalCode = crypto.randomBytes(3).toString("hex");
     const admin = new User({
       firstName,
       lastName,

@@ -8,6 +8,7 @@ import {
   deleteUser,
   updateUser,
   changePassword,
+  approveUser,
 } from "../controllers/user.js";
 
 import {
@@ -21,7 +22,7 @@ import {
 const router = express.Router();
 
 router.route("/signup").post(createuserValidator, createUser);
-
+router.post("/approve", approveUser);
 router.route("").get(getAllUsers);
 router.route("/coaches").get(getAllCoaches);
 router.route("/nutritionniste").get(getAllNutritionnistes);

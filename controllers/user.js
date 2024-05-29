@@ -1,6 +1,7 @@
 import User from "../modules/user.js";
 import bcrypt from "bcrypt";
-
+import { sendApprovalCode } from "../services/email.service.js";
+import crypto from "crypto";
 const createUser = async (req, res) => {
   const {
     firstName,
@@ -14,6 +15,7 @@ const createUser = async (req, res) => {
   } = req.body;
 
   try {
+    const approvalCode = crypto.randomBytes(3).toString("hex");
     const user = new User({
       firstName,
       lastName,
@@ -24,10 +26,16 @@ const createUser = async (req, res) => {
       password,
       adresse,
       phoneNumber,
+      approvalCode,
+      isApproved: false,
     });
     await user.save();
+    await sendApprovalCode(email, approvalCode);
 
-    res.status(201).json(user);
+    res.status(201).json({
+      message: "User created. Approval code sent to email.",
+      user: user,
+    });
   } catch (err) {
     console.log(err);
     res.status(500).json({ message: "Server error", error: err.message });
@@ -154,6 +162,30 @@ const changePassword = async (req, res) => {
     response: `User ${user.firstName} ${user.lastName} password has been modified`,
   });
 };
+const approveUser = async (req, res) => {
+  const { email, approvalCode } = req.body;
+
+  try {
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    if (user.approvalCode !== approvalCode) {
+      return res.status(400).json({ message: "Invalid approval code" });
+    }
+
+    user.isApproved = true;
+    user.approvalCode = undefined; // Clear the approval code
+    await user.save();
+
+    res.status(200).json({ message: "User approved successfully" });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ message: "Server error", error: err.message });
+  }
+};
 
 export {
   createUser,
@@ -164,4 +196,5 @@ export {
   deleteUser,
   updateUser,
   changePassword,
+  approveUser,
 };

@@ -22,7 +22,6 @@ const handleLogin = async (req, res) => {
 async function login(req) {
   const { email, password } = req.body;
 
-  // Check if email or password is empty
   if (!email || !password) {
     throw new ApiError(
       httpStatus.BAD_REQUEST,
