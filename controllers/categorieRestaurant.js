@@ -1,9 +1,9 @@
 import { validationResult } from "express-validator";
-import Plat from "../models/plat.js";
+import CategorieRestaurant from "../models/categorieRestaurant.js";
 import Restaurant from "../models/restaurant.js";
 
-export function getAllPlats(req, res) {
-  Plat.find({})
+export function getAllCategorieRestaurants(req, res) {
+  CategorieRestaurant.find({})
     .populate("restaurants")
     .then((docs) => {
       res.status(200).json(docs);
@@ -13,39 +13,31 @@ export function getAllPlats(req, res) {
     });
 }
 
-export function addOnePlat(req, res) {
+export function addOneCategorieRestaurant(req, res) {
   if (!validationResult(req).isEmpty()) {
     res.status(400).json({ errors: validationResult(req).array() });
   } else {
-    let newPlat = {};
+    let newCategorieRestaurant = {};
     if (req.file == undefined) {
-      newPlat = {
-        nomPlat: req.body.nomPlat,
-        prixPlat: req.body.prixPlat,
-        cuisine: req.body.cuisine,
-        calories: req.body.calories,
-        categoriePlat: req.body.categoriePlat,
+      newCategorieRestaurant = {
+        libelle: req.body.libelle,
         restaurants: req.body.restaurants,
-        imagePlat: `${req.protocol}://${req.get(
+        imageCategorieRestaurant: `${req.protocol}://${req.get(
           "host"
-        )}/img/imagePlatDefault.png`,
+        )}/img/imageCategorieRestaurantDefault.jpg`,
       };
     } else {
-      newPlat = {
-        nomPlat: req.body.nomPlat,
-        prixPlat: req.body.prixPlat,
-        cuisine: req.body.cuisine,
-        calories: req.body.calories,
-        categoriePlat: req.body.categoriePlat,
+      newCategorieRestaurant = {
+        libelle: req.body.libelle,
         restaurants: req.body.restaurants,
-        imagePlat: `${req.protocol}://${req.get("host")}/img/${
+        imageCategorieRestaurant: `${req.protocol}://${req.get("host")}/img/${
           req.file.filename
         }`,
       };
     }
-    Plat.create(newPlat)
-      .then((newPlat) => {
-        res.status(200).json(newPlat);
+    CategorieRestaurant.create(newCategorieRestaurant)
+      .then((newCategorieRestaurant) => {
+        res.status(200).json(newCategorieRestaurant);
       })
       .catch((err) => {
         res.status(500).json({ error: err });
@@ -53,8 +45,8 @@ export function addOnePlat(req, res) {
   }
 }
 
-export function getOnePlat(req, res) {
-  Plat.findById(req.params.id)
+export function getOneCategorieRestaurant(req, res) {
+  CategorieRestaurant.findById(req.params.id)
     .populate("restaurants")
     .then((doc) => {
       res.status(200).json(doc);
@@ -64,36 +56,28 @@ export function getOnePlat(req, res) {
     });
 }
 
-export function updateOnePlat(req, res) {
+export function updateOneCategorieRestaurant(req, res) {
   if (!validationResult(req).isEmpty()) {
     res.status(400).json({ errors: validationResult(req).array() });
   } else {
-    let newPlat = {};
+    let newCategorieRestaurant = {};
     if (req.file == undefined) {
-      newPlat = {
-        nomPlat: req.body.nomPlat,
-        prixPlat: req.body.prixPlat,
-        cuisine: req.body.cuisine,
-        calories: req.body.calories,
-        categoriePlat: req.body.categoriePlat,
+      newCategorieRestaurant = {
+        libelle: req.body.libelle,
         restaurants: req.body.restaurants,
       };
     } else {
-      newPlat = {
-        nomPlat: req.body.nomPlat,
-        prixPlat: req.body.prixPlat,
-        cuisine: req.body.cuisine,
-        calories: req.body.calories,
-        categoriePlat: req.body.categoriePlat,
+      newCategorieRestaurant = {
+        libelle: req.body.libelle,
         restaurants: req.body.restaurants,
-        imagePlat: `${req.protocol}://${req.get("host")}/img/${
+        imageCategorieRestaurant: `${req.protocol}://${req.get("host")}/img/${
           req.file.filename
         }`,
       };
     }
-    Plat.findByIdAndUpdate(req.params.id, newPlat)
+    CategorieRestaurant.findByIdAndUpdate(req.params.id, newCategorieRestaurant)
       .then((doc1) => {
-        Plat.findById(req.params.id)
+        CategorieRestaurant.findById(req.params.id)
           .then((doc2) => {
             res.status(200).json(doc2);
           })
@@ -107,8 +91,8 @@ export function updateOnePlat(req, res) {
   }
 }
 
-export function deleteOnePlat(req, res) {
-  Plat.findByIdAndDelete(req.params.id)
+export function deleteOneCategorieRestaurant(req, res) {
+  CategorieRestaurant.findByIdAndDelete(req.params.id)
     .then((doc) => {
       res.status(200).json(doc);
     })

@@ -7,6 +7,7 @@ import { notFoundError, errorHandler } from "./middlewares/error-handler.js";
 
 import platRoutes from "./routes/plat.js";
 import restaurantRoutes from "./routes/restaurant.js";
+import categorieRestaurantRoutes from "./routes/categorieRestaurant.js";
 
 const app = express();
 const port = process.env.PORT || 9090;
@@ -33,6 +34,7 @@ app.use("/img", express.static("public/images"));
 
 app.use("/plat", platRoutes);
 app.use("/restaurant", restaurantRoutes);
+app.use("/categorieRestaurant", categorieRestaurantRoutes);
 
 app.use(notFoundError);
 app.use(errorHandler);
