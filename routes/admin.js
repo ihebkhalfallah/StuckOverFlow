@@ -21,22 +21,32 @@ import {
   createCoachValidator,
   changepasswordvalidate,
 } from "../utils/validators/coachValidator.js";
+import authorize from "../middlewares/authorize.js";
+import Roles from "../modules/role.js";
 
 const router = express.Router();
-router.route("/createadmin").post(createCoachValidator, createAdmin);
-router.route("/").get(getAllAccounts);
-router.route("/admins").get(getAllAdmins);
-router.route("/users").get(getAllUsers);
-router.route("/coaches").get(getAllCoaches);
-router.route("/nutritionnistes").get(getAllNutritionnistes);
-router.route("/changepassword/:id").put(changepasswordvalidate, changePassword);
+router
+  .route("/createadmin")
+  .post(authorize([Roles.ADMIN]), createCoachValidator, createAdmin);
+router.route("/").get(authorize([Roles.ADMIN]), getAllAccounts);
+router.route("/admins").get(authorize([Roles.ADMIN]), getAllAdmins);
+router.route("/users").get(authorize([Roles.ADMIN]), getAllUsers);
+router.route("/coaches").get(authorize([Roles.ADMIN]), getAllCoaches);
+router
+  .route("/nutritionnistes")
+  .get(authorize([Roles.ADMIN]), getAllNutritionnistes);
+router
+  .route("/changepassword/:id")
+  .put(authorize([Roles.ADMIN]), changepasswordvalidate, changePassword);
 
-router.route("/desactivate/:id").put(desactiveAccount);
-router.route("/reactivate/:id").put(reactiveAccount);
+router
+  .route("/desactivate/:id")
+  .put(authorize([Roles.ADMIN]), desactiveAccount);
+router.route("/reactivate/:id").put(authorize([Roles.ADMIN]), reactiveAccount);
 router
   .route("/:id")
-  .get(getCoachValidator, getUser)
-  .delete(deleteCoachValidator, deleteUser)
-  .put(updateCoachValidator, updateAdmin);
+  .get(authorize([Roles.ADMIN]), getCoachValidator, getUser)
+  .delete(authorize([Roles.ADMIN]), deleteCoachValidator, deleteUser)
+  .put(authorize([Roles.ADMIN]), updateCoachValidator, updateAdmin);
 
 export default router;

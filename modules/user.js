@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 import bcrypt from "bcrypt";
-
+import RolesEnum from "./role.js";
 const { Schema, model } = mongoose;
 
 const userSchema = new Schema(
