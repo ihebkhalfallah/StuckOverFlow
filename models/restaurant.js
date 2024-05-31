@@ -6,13 +6,25 @@ const restaurantSchema = new Schema({
     type: String,
     required: true,
   },
-  locationRestaurant: {
-    type: Object,
-    required: true,
+  adresseRestaurant: {
+    type: String,
   },
   imageRestaurant: {
     type: String,
     required: false,
+  },
+  location: {
+    type: {
+      type: String,
+      enum: ["Point"],
+      default: "Point",
+      required: true,
+    },
+    coordinates: {
+      type: [Number],
+      required: true,
+    },
+    address: String,
   },
   plats: [
     {
@@ -29,5 +41,7 @@ const restaurantSchema = new Schema({
     },
   ],
 });
+
+restaurantSchema.index({ location: "2dsphere" });
 
 export default model("Restaurant", restaurantSchema);

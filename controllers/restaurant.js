@@ -22,8 +22,9 @@ export function addOneRestaurant(req, res) {
 
   let newRestaurantData = {
     nomRestaurant: req.body.nomRestaurant,
-    locationRestaurant: req.body.locationRestaurant,
+    adresseRestaurant: req.body.adresseRestaurant,
     plats: req.body.plats,
+    location: req.body.location,
     categorieRestaurant: req.body.categorieRestaurant,
     imageRestaurant: req.file
       ? `${req.protocol}://${req.get("host")}/img/${req.file.filename}`
@@ -73,8 +74,9 @@ export function updateOneRestaurant(req, res) {
 
   let updatedRestaurantData = {
     nomRestaurant: req.body.nomRestaurant,
-    locationRestaurant: req.body.locationRestaurant,
+    adresseRestaurant: req.body.adresseRestaurant,
     plats: req.body.plats,
+    location: req.body.location,
     categorieRestaurant: req.body.categorieRestaurant,
     imageRestaurant: req.file
       ? `${req.protocol}://${req.get("host")}/img/${req.file.filename}`
@@ -129,4 +131,62 @@ export function deleteOneRestaurant(req, res) {
     .catch((err) => {
       res.status(500).json({ error: err.message });
     });
+}
+
+export function getRestaurantsByAdresse(req, res) {
+  const searchString = req.query.searchString.trim();
+  if (!searchString) {
+    return res.status(400).json({ error: "Recherche vide." });
+  }
+  const searchPattern = new RegExp(searchString, "i");
+
+  Restaurant.find({ adresseRestaurant: { $regex: searchPattern } })
+    .then((restaurants) => {
+      res.status(200).json(restaurants);
+    })
+    .catch((err) => {
+      res.status(500).json({ error: err.message });
+    });
+}
+
+export async function findRestaurantsNearPlace(req, res) {
+  const { latitude, longitude, maxDistance } = req.query;
+  if (!latitude || !longitude || !maxDistance) {
+    return res.status(400).json({
+      error: "Latitude, longitude, and maxDistance sont obligatoires.",
+    });
+  }
+
+  try {
+    const lat = parseFloat(latitude);
+    const lng = parseFloat(longitude);
+
+    const distanceInMeters = parseInt(maxDistance);
+
+    if (
+      isNaN(lat) ||
+      isNaN(lng) ||
+      isNaN(distanceInMeters) ||
+      distanceInMeters <= 0
+    ) {
+      return res
+        .status(400)
+        .json({ error: "Invalide latitude, longitude, or maxDistance." });
+    }
+    const restaurants = await Restaurant.find({
+      location: {
+        $near: {
+          $geometry: {
+            type: "Point",
+            coordinates: [lng, lat],
+          },
+          $maxDistance: distanceInMeters,
+        },
+      },
+    }).exec();
+
+    res.status(200).json(restaurants);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
 }
