@@ -16,6 +16,8 @@ const reclamationSchema = new Schema({
         date: { type: Date, default: Date.now }
     }],
     resolvedDate: { type: Date },
-    assignedTo: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }
+    assignedTo: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+    isNotified: { type: Boolean, default: false },
+    rating: { type: Number, min: 1, max: 5 }
 });
 export default model('Reclamation', reclamationSchema);
