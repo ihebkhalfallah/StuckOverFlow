@@ -1,5 +1,7 @@
 import { validationResult } from "express-validator";
 import ReclamationResponse from "../models/reclamationResponse.js";
+import { WebSocketServer } from 'ws';
+
 let wss; // Define WebSocket server instance variable
 
 export function setWebSocketServer(webSocketServer) {
@@ -36,13 +38,22 @@ export function createReclamationResponse(req, res) {
     reclamationResponse
         .save()
         .then((doc) => {
-            ws.send(doc);
-            res.status(201).json(doc);
+            const notification = {
+              data: doc, // Existing data
+              subject: doc.notificationSubject, // Add notification subject
+            };
+            wss.clients.forEach((client) => {
+              if (client.readyState === WebSocketServer.OPEN) {
+                client.send(JSON.stringify(notification));
+              }
+            });
+                      res.status(201).json(doc);
         })
         .catch((err) => {
             res.status(500).json({ error: err });
         });
-}
+
+    }
 
 export function updateReclamationResponse(req, res) {
     const errors = validationResult(req);
