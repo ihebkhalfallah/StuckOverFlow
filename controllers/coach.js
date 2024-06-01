@@ -1,5 +1,4 @@
 import { validationResult } from "express-validator";
-
 import Coach from "../models/coach.js";
 import Seance from '../models/seance.js'; 
 import schedule from 'node-schedule';
@@ -98,7 +97,7 @@ export async function checkDisponibilite(idCoach, dateEvent, heureDebutEvent, he
     }
 }
 
-export function ResetJob () { schedule.scheduleJob('45 19 * * *', () => {
+export function ResetJob () { schedule.scheduleJob(' 19 * * *', () => {
     Coach.updateMany({}, { Disponible: true }).exec(); // Reset Disponibilite 
   })};
   

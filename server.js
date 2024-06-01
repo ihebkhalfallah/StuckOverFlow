@@ -48,8 +48,10 @@ app.listen(port, () => {
     console.log(`Server running at http://localhost:${port}/`);
   });
 
-const d1 = new Date (2024,5,16,12,0,0,0);
-const d2 = new Date (2024,5,16,10,30,0,0);
+  ResetJob();
+
+// const d1 = new Date (2024,5,16,12,0,0,0);
+// const d2 = new Date (2024,5,16,10,30,0,0);
 
 // let date =  (d1.getTime() - d2.getTime())/1000/60/60;
 // console.log(d1.getTime() < d2.getTime());
@@ -91,4 +93,3 @@ const d2 = new Date (2024,5,16,10,30,0,0);
 // // new Date(new Date()-3600*1000*3).toISOString();
 // console.log(date.)
 
-ResetJob();

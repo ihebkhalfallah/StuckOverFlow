@@ -4,6 +4,7 @@ import Reservation from "../models/reservation.js";
 import Coach from "../models/coach.js";
 import Seance from "../models/seance.js";  
 import { checkDisponibilite } from "../controllers/coach.js";
+import { sendEmail } from "../services/email.service.js";
 
 
 
@@ -38,7 +39,7 @@ export const create = async (req, res) => {
 
         //nbr places
 
-        if(seanceFound.NbrParticipant +1 >= seanceFound.Capacity){
+        if(seanceFound.NbrParticipant +1 > seanceFound.Capacity){
             return res.status(400).json({ error: 'Salle de sport full' });
         }   
 
@@ -47,7 +48,7 @@ export const create = async (req, res) => {
             seance
         });
 
-        coachFound.Disponible = false; //mich 9a3da tsir 
+        // coachFound.Disponible = false; 
         seanceFound.NbrParticipant += 1;
        
         await coachFound.save();
@@ -55,6 +56,9 @@ export const create = async (req, res) => {
 
         await reservation.save();
         res.status(201).json(reservation , seanceFound, coachFound);
+        
+    
+        sendEmail("rouissizouhour22@gmail.com", "Your Reservation is Successful", "Thank you for your reservation.");
         
 
     } catch (error) {
