@@ -11,29 +11,21 @@ const __dirname = path.dirname(__filename);
 const transporter = nodemailer.createTransport({
   host: process.env.SMTP_HOST,
   port: process.env.SMTP_PORT,
-  secure: false, // true for 465, false for other ports
+  secure: false,
   auth: {
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASS,
   },
 });
+export const sendEmail = async (to, subject, htmlContent) => {
+  const mailOptions = {
+    from: `"Your Name" <${process.env.EMAIL_USER}>`,
+    to,
+    subject,
+    html: htmlContent,
+  };
 
-export const sendEmail = async (to, subject, approvalCode) => {
   try {
-    const templatePath = path.join(
-      __dirname,
-      "../templates/approvalEmailTemplate.html"
-    );
-    let htmlContent = fs.readFileSync(templatePath, "utf8");
-    htmlContent = htmlContent.replace("{{approvalCode}}", approvalCode);
-
-    const mailOptions = {
-      from: `"Your Name" <${process.env.SMTP_USER}>`,
-      to,
-      subject,
-      html: htmlContent,
-    };
-
     const info = await transporter.sendMail(mailOptions);
     console.log("Message sent: %s", info.messageId);
   } catch (error) {

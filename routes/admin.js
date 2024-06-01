@@ -21,10 +21,12 @@ import {
   createCoachValidator,
   changepasswordvalidate,
 } from "../utils/validators/coachValidator.js";
-import authorize from "../middlewares/authorize.js";
+import { checkAccountApproval, authorize } from "../middlewares/authorize.js";
 import Roles from "../modules/role.js";
 
 const router = express.Router();
+router.use(authorize(["ADMIN", "COACH"]));
+router.use(checkAccountApproval);
 router
   .route("/createadmin")
   .post(authorize([Roles.ADMIN]), createCoachValidator, createAdmin);

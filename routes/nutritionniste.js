@@ -16,13 +16,14 @@ import {
   changepasswordvalidate,
 } from "../utils/validators/nutritionnisteValidator.js";
 
-import authorize from "../middlewares/authorize.js";
 import Roles from "../modules/role.js";
-
+import { checkAccountApproval, authorize } from "../middlewares/authorize.js";
 const router = express.Router();
 router
   .route("/signup")
   .post(createNutritionnisteValidator, createNutritionniste);
+router.use(authorize(["ADMIN", "NUTRITIONNISTE"]));
+router.use(checkAccountApproval);
 router
   .route("/")
   .get(authorize([Roles.NUTRITIONNISTE], [Roles.ADMIN]), getAllNutritionnistes);

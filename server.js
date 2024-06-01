@@ -9,7 +9,8 @@ import coachRoutes from "./routes/coach.js";
 import nutritionnisteRoutes from "./routes/nutritionniste.js";
 import adminRoutes from "./routes/admin.js";
 import authRoutes from "./routes/auth.js";
-
+import approveRoutes from "./routes/approve.js";
+import { createAdmin } from "./controllers/adminSeed.js";
 dotenv.config({ path: ".env" });
 
 mongoose.set("debug", true);
@@ -39,6 +40,7 @@ app.use("/coach", coachRoutes);
 app.use("/nutritionniste", nutritionnisteRoutes);
 app.use("/admin", adminRoutes);
 app.use("/auth", authRoutes);
+app.use("/approve", approveRoutes);
 
 app.use(notFoundError);
 app.use(errorHundler);

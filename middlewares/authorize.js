@@ -1,7 +1,7 @@
 import jwt from "jsonwebtoken";
 import User from "../modules/user.js";
 
-const authorize = (roles = []) => {
+export const authorize = (roles = []) => {
   if (typeof roles === "string") {
     roles = [roles];
   }
@@ -30,4 +30,12 @@ const authorize = (roles = []) => {
   };
 };
 
+export const checkAccountApproval = (req, res, next) => {
+  if (!req.user || !req.user.isApproved) {
+    return res
+      .status(401)
+      .json({ message: "Your account is not approved yet" });
+  }
+  next();
+};
 export default authorize;

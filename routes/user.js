@@ -8,7 +8,6 @@ import {
   deleteUser,
   updateUser,
   changePassword,
-  approveUser,
 } from "../controllers/user.js";
 
 import {
@@ -19,13 +18,13 @@ import {
   changepasswordvalidate,
 } from "../utils/validators/userValidator.js";
 
-import authorize from "../middlewares/authorize.js";
 import Roles from "../modules/role.js";
-
+import { checkAccountApproval, authorize } from "../middlewares/authorize.js";
 const router = express.Router();
 
 router.route("/signup").post(createuserValidator, createUser);
-router.post("/approve", authorize([Roles.USER], [Roles.ADMIN]), approveUser);
+router.use(authorize(["ADMIN", "USER"]));
+router.use(checkAccountApproval);
 router.route("").get(authorize([Roles.USER], [Roles.ADMIN]), getAllUsers);
 router
   .route("/coaches")

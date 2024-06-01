@@ -1,37 +1,15 @@
 import express from "express";
 
-// import validate from '../middlewares/validate.js';
 import {
   handleLogin,
-  //   handleRefreshToken,
-  //   handleResetPassword,
-  //   handleForgotPassword,
+  forgotPassword,
+  resetPassword,
 } from "../controllers/authentification.js";
-
-// import {
-//   validateLogin,
-//   validateRefreshToken,
-//   validateResetPassword,
-//   validateForgotPassword,
-// } from "../validations/auth.validation.js";
-
+import { resetPasswordvalidate } from "../utils/validators/resetPasswordValidator.js";
 const router = express.Router();
 
 router.post("/login", handleLogin);
-// router.post(
-//   "/forgot-password",
-//   validate(validateForgotPassword),
-//   handleForgotPassword
-// );
-// router.post(
-//   "/reset-password",
-//   validate(validateResetPassword),
-//   handleResetPassword
-// );
-// router.post(
-//   "/refresh-tokens",
-//   validate(validateRefreshToken),
-//   handleRefreshToken
-// );
+router.post("/forgot-password", forgotPassword);
+router.post("/reset-password/", resetPasswordvalidate, resetPassword);
 
 export default router;
