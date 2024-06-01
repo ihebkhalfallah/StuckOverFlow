@@ -118,3 +118,42 @@ export function deleteOnePlat(req, res) {
       res.status(500).json({ error: err.message });
     });
 }
+
+export async function findPlatsWithinCalories(req, res) {
+  const { maxCalories, minCalories } = req.query;
+  const max = parseInt(maxCalories);
+  const min = parseInt(minCalories);
+  try {
+    const entrees = await Plat.find({ categoriePlat: "entree" });
+    const platsPricipales = await Plat.find({
+      categoriePlat: "plat principale",
+    });
+    const desserts = await Plat.find({ categoriePlat: "dessert" });
+    const validCombinations = [];
+
+    for (const entree of entrees) {
+      for (const platPricipale of platsPricipales) {
+        for (const dessert of desserts) {
+          const totalCalories =
+            entree.calories + platPricipale.calories + dessert.calories;
+          if (totalCalories >= min && totalCalories <= max) {
+            validCombinations.push({
+              entree,
+              platPricipale,
+              dessert,
+              totalCalories,
+            });
+          }
+        }
+      }
+    }
+    if (validCombinations.length === 0) {
+      return res.status(404).json({
+        error: "Aucun combinaison trouvé.",
+      });
+    }
+    res.status(200).json(validCombinations);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+}

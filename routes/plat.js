@@ -7,9 +7,12 @@ import {
   getOnePlat,
   updateOnePlat,
   deleteOnePlat,
+  findPlatsWithinCalories,
 } from "../controllers/plat.js";
 
 const router = express.Router();
+
+router.get("/find-within-calories", findPlatsWithinCalories);
 
 router
   .route("/")
