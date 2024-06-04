@@ -1,4 +1,3 @@
-
     import Reclamation from '../models/reclamation.js';
 
     export function rateReclamationResponse(req, res) {

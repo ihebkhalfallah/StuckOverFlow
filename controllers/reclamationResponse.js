@@ -39,20 +39,14 @@ export function createReclamationResponse(req, res) {
         .save()
         .then((doc) => {
             const notification = {
-              data: doc, // Existing data
-              subject: doc.notificationSubject, // Add notification subject
+              data: doc,
+              subject: doc.notificationSubject,
             };
-            wss.clients.forEach((client) => {
-              if (client.readyState === WebSocketServer.OPEN) {
-                client.send(JSON.stringify(notification));
-              }
-            });
-                      res.status(201).json(doc);
+            res.status(201).json(doc);
         })
         .catch((err) => {
             res.status(500).json({ error: err });
         });
-
     }
 
 export function updateReclamationResponse(req, res) {

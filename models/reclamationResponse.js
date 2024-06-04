@@ -2,6 +2,7 @@ import mongoose from "mongoose";
 
 const {Schema,model} =mongoose;
 const reclamationResponse = new Schema({
+    email:{ type: String , required: true},
     reclamationId: { type: mongoose.Schema.Types.ObjectId, ref: 'Reclamation', required: true },
     reclamationType: { type: mongoose.Schema.Types.ObjectId, ref: 'ReclamationType', required: true },
     date: { type: Date, default: Date.now },
