@@ -1,5 +1,6 @@
 import User from "../modules/user.js";
 import bcrypt from "bcrypt";
+import crypto from "crypto";
 import { sendApprovalCode } from "../services/email.service.js";
 
 const createNutritionniste = async (req, res) => {
@@ -25,13 +26,19 @@ const createNutritionniste = async (req, res) => {
       birthDate,
       role: "NUTRITIONNISTE",
       email,
-      password: hashedPassword,
+      password,
       adresse,
       phoneNumber,
+      approvalCode,
+      isApproved: false,
     });
     await user.save();
+    await sendApprovalCode(email, approvalCode);
 
-    res.status(201).json(user);
+    res.status(201).json({
+      message: "User created. Approval code sent to email.",
+      user: user,
+    });
   } catch (err) {
     console.log(err);
     res.status(500).json({ message: "Server error", error: err.message });

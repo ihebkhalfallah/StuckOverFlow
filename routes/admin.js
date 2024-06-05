@@ -25,11 +25,10 @@ import { checkAccountApproval, authorize } from "../middlewares/authorize.js";
 import Roles from "../modules/role.js";
 
 const router = express.Router();
+router.route("/createadmin").post(createCoachValidator, createAdmin);
+
 router.use(authorize(["ADMIN", "COACH"]));
 router.use(checkAccountApproval);
-router
-  .route("/createadmin")
-  .post(authorize([Roles.ADMIN]), createCoachValidator, createAdmin);
 router.route("/").get(authorize([Roles.ADMIN]), getAllAccounts);
 router.route("/admins").get(authorize([Roles.ADMIN]), getAllAdmins);
 router.route("/users").get(authorize([Roles.ADMIN]), getAllUsers);

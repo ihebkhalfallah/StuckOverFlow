@@ -11,6 +11,9 @@ import adminRoutes from "./routes/admin.js";
 import authRoutes from "./routes/auth.js";
 import approveRoutes from "./routes/approve.js";
 import { createAdmin } from "./controllers/adminSeed.js";
+import passport from "passport";
+import session from "express-session";
+
 dotenv.config({ path: ".env" });
 
 mongoose.set("debug", true);
@@ -20,6 +23,18 @@ const app = express();
 const port = process.env.PORT;
 const databaseName = process.env.DATABASENAME;
 const db_url = process.env.DB_URL;
+app.use(express.json());
+
+app.use(
+  session({
+    secret: process.env.SESSION_SECRET,
+    resave: false,
+    saveUninitialized: true,
+  })
+);
+
+app.use(passport.initialize());
+app.use(passport.session());
 
 mongoose
   .connect(`${db_url}/${databaseName}`)

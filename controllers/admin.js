@@ -1,5 +1,6 @@
 import User from "../modules/user.js";
 import bcrypt from "bcrypt";
+import crypto from "crypto";
 import ApiError from "../utils/apiError.js";
 import { sendApprovalCode } from "../services/email.service.js";
 
@@ -25,13 +26,20 @@ const createAdmin = async (req, res) => {
       birthDate,
       role: "ADMIN",
       email,
-      password: hashedPassword,
+      password,
       adresse,
       phoneNumber,
+      approvalCode,
+      isApproved: false,
     });
     await admin.save();
 
-    res.status(201).json(admin);
+    await sendApprovalCode(email, approvalCode);
+
+    res.status(201).json({
+      message: "User created. Approval code sent to email.",
+      user: admin,
+    });
   } catch (err) {
     console.log(err);
     res.status(500).json({ message: "Server error", error: err.message });

@@ -4,12 +4,101 @@ import bcrypt from "bcrypt";
 import ApiError from "../utils/apiError.js";
 import { getUserByEmail } from "./admin.js";
 import httpStatus from "http-status";
-import {
-  generateAuthTokens,
-} from "../controllers/token.js";
+import { generateAuthTokens } from "../controllers/token.js";
 import crypto from "crypto";
 import Token from "../modules/token.js";
 import { sendEmail } from "../services/email.service.js";
+import passport from "passport";
+import { Strategy as GoogleStrategy } from "passport-google-oauth20";
+import dotenv from "dotenv";
+
+dotenv.config();
+
+// const GOOGLE_CLIENT_ID =
+//   "739887847191-po6cohnbrq98pomf5580us13423u26m9.apps.googleusercontent.com";
+// const GOOGLE_CLIENT_SECRET = "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";
+
+passport.use(
+  new GoogleStrategy(
+    {
+      clientID: process.env.CLIENT_ID,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+      callbackURL: "http://localhost:9090/auth/google/callback",
+    },
+    async (token, tokenSecret, profile, done) => {
+      try {
+        let user = await User.findOne({ googleId: profile.id });
+
+        if (!user) {
+          user = new User({
+            googleId: profile.id,
+            firstName: profile.name.givenName,
+            lastName: profile.name.familyName,
+            email: profile.emails[0].value,
+            password: "00112233@Ab",
+            nickName: profile.displayName,
+            birthDate: new Date(),
+            role: "USER",
+            isApproved: true,
+          });
+          await user.save();
+        }
+
+        return done(null, user);
+      } catch (err) {
+        return done(err, null);
+      }
+    }
+  )
+);
+
+passport.serializeUser((user, done) => {
+  done(null, user.id);
+});
+
+passport.deserializeUser(async (id, done) => {
+  try {
+    const user = await User.findById(id);
+    done(null, user);
+  } catch (err) {
+    done(err, null);
+  }
+});
+
+export const googleLogin = passport.authenticate("google", {
+  scope: ["profile", "email"],
+});
+
+export const googleCallback = (req, res, next) => {
+  passport.authenticate(
+    "google",
+    { failureRedirect: "/login" },
+    async (err, user) => {
+      if (err) {
+        console.error("Error authenticating with Google:", err);
+        return res.status(500).send({ message: "Authentication failed" });
+      }
+
+      if (!user) {
+        return res.redirect("/login");
+      }
+
+      try {
+        const tokens = await generateAuthTokens({
+          userId: user.id,
+          roleId: user.role_id,
+        });
+
+        res.redirect(
+          `/dashboard?tokens=${encodeURIComponent(JSON.stringify(tokens))}`
+        );
+      } catch (tokenError) {
+        console.error("Error generating tokens:", tokenError);
+        return res.status(500).send({ message: "Token generation failed" });
+      }
+    }
+  )(req, res, next);
+};
 
 export const handleLogin = async (req, res) => {
   try {
@@ -18,7 +107,7 @@ export const handleLogin = async (req, res) => {
       userId: user.id,
       roleId: user.role_id,
     });
-    res.send({ user, tokens });
+    res.status(200).send({ user, tokens });
   } catch (error) {
     res.status(error.status || 500).send({ message: error.message });
   }
@@ -28,16 +117,14 @@ async function login(req) {
   const { email, password } = req.body;
 
   if (!email || !password) {
-    throw new ApiError(
-      httpStatus.BAD_REQUEST,
-      "Email or password cannot be empty"
-    );
+    throw new ApiError(400, "Email or password cannot be empty");
   }
 
   const user = await getUserByEmail(email);
-
+  console.log(">>>>>>>>>>>>>>>>", user);
+  
   if (!user) {
-    throw new ApiError(httpStatus.UNAUTHORIZED, "Invalid credentials");
+    throw new ApiError(401, "Invalid credentials"); // Use valid status code
   }
 
   if (!user.password) {
@@ -66,7 +153,6 @@ export const forgotPassword = async (req, res) => {
       return res.status(404).send({ message: "User not found" });
     }
 
-    // Generate a reset token
     const resetToken = crypto.randomBytes(32).toString("hex");
     const hash = await bcrypt.hash(resetToken, 10);
 
@@ -97,7 +183,6 @@ export const resetPassword = async (req, res) => {
     const tokens = await Token.find();
     let userToken = null;
 
-    // Find the token in the database
     for (let i = 0; i < tokens.length; i++) {
       const isTokenValid = await bcrypt.compare(token, tokens[i].token);
       if (isTokenValid) {

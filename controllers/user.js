@@ -41,6 +41,8 @@ const createUser = async (req, res) => {
     res.status(500).json({ message: "Server error", error: err.message });
   }
 };
+
+
 const getUser = async (req, res) => {
   try {
     const user = await User.findById(req.params.id);

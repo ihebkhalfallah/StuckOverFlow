@@ -1,7 +1,7 @@
 export function notFoundError(req, res, next) {
   const err = new Error(`Not Found`);
   err.status = 404;
-  next(err); // return error
+  next(err);
 }
 
 export function errorHundler(err, req, res, next) {

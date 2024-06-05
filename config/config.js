@@ -99,9 +99,8 @@ export default {
        * References: https://sequelize.org/master/manual/model-basics.html#timestamps
        */
       timestamps: false,
-      // Table names won't be pluralized.
       freezeTableName: true,
-      // Column names will be underscored.
+
       underscored: true,
     },
   },
