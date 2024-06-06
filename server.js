@@ -21,7 +21,7 @@ import session from "express-session";
 import ManageCoachRoutes from './routes/ManageCoach.js';
 import seanceRoutes from './routes/seance.js';
 import reservationRoutes from './routes/reservation.js';
-import  { notFoundError, errorHandler } from './middlewares/error-handler.js';
+
 import { checkDisponibilite } from './controllers/ManageCoach.js';
 // import { reserver } from './controllers/seance.js';
 import { ResetJob } from './controllers/ManageCoach.js';

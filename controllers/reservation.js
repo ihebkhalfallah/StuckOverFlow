@@ -58,7 +58,7 @@ export const create = async (req, res) => {
         res.status(201).json(reservation , seanceFound, coachFound);
         
     
-        sendEmail("rouissizouhour22@gmail.com", "Your Reservation is Successful", "Thank you for your reservation.");
+        sendEmailReservation("rouissizouhour22@gmail.com", "Your Reservation is Successful", "Thank you for your reservation.");
         
 
     } catch (error) {
