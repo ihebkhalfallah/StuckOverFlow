@@ -17,28 +17,28 @@ const transporter = nodemailer.createTransport({
     pass: process.env.EMAIL_PASS,
   },
 });
-export const sendEmail = async (to, subject = 'Your Reservation is Successful', text = 'Thank you for your reservation.') => {
-    const mailOptions = {
-      from: `"BodySmith _ La fitnesse pour tous" <${process.env.EMAIL_USER}>`, 
-      to,
-      subject,
-      text,
-    };
-  
-    try {
-      const info = await transporter.sendMail(mailOptions);
-      console.log("Message sent: %s", info.messageId);
-    } catch (error) {
-      console.error("Error sending email:", error);
-    }
+export const sendEmail = async (to, subject, htmlContent) => {
+  const mailOptions = {
+    from: `"Your Name" <${process.env.EMAIL_USER}>`,
+    to,
+    subject,
+    html: htmlContent,
   };
 
-// export const sendReservationMail = async (to) => {
-//   const subject = "Your Reservation is succefful";
+  try {
+    const info = await transporter.sendMail(mailOptions);
+    console.log("Message sent: %s", info.messageId);
+  } catch (error) {
+    console.error("Error sending email:", error);
+  }
+};
 
-//   const templatePath = path.resolve("templates", "approvalEmailTemplate.html");
-//   let htmlTemplate = fs.readFileSync(templatePath, "utf-8");
+export const sendApprovalCode = async (to, approvalCode) => {
+  const subject = "Your Account Approval Code";
 
+  const templatePath = path.resolve("templates", "approvalEmailTemplate.html");
+  let htmlTemplate = fs.readFileSync(templatePath, "utf-8");
+  htmlTemplate = htmlTemplate.replace("{{approvalCode}}", approvalCode);
 
-//   await sendEmail(to, subject, htmlTemplate);
-// };
+  await sendEmail(to, subject, htmlTemplate);
+};
