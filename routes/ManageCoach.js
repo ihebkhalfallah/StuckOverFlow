@@ -3,7 +3,7 @@ import { body } from "express-validator";
 
 
 
-import { getAll,getOne, create, update, deleteOne } from "../controllers/coach.js";
+import { getAll,getOne, create, update, deleteOne } from "../controllers/ManageCoach.js";
 
 const router = express.Router();
 
@@ -26,4 +26,5 @@ router
         create
     );
  
+
 export default router;

@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 import Reservation from "../models/reservation.js";
 import Coach from "../models/coach.js";
 import Seance from "../models/seance.js";  
-import { checkDisponibilite } from "../controllers/coach.js";
+import { checkDisponibilite } from "./ManageCoach.js";
 import { sendEmail } from "../services/email.service.js";
 
 

@@ -4,13 +4,13 @@ import morgan from 'morgan';
 import cors from 'cors';
 
 
-import coachRoutes from './routes/coach.js';
+import coachRoutes from './routes/ManageCoach.js';
 import seanceRoutes from './routes/seance.js';
 import reservationRoutes from './routes/reservation.js';
 import  { notFoundError, errorHandler } from './middlewares/error-handler.js';
-import { checkDisponibilite } from './controllers/coach.js';
+import { checkDisponibilite } from './controllers/ManageCoach.js';
 // import { reserver } from './controllers/seance.js';
-import { ResetJob } from './controllers/coach.js';
+import { ResetJob } from './controllers/ManageCoach.js';
 
 
 const app = express();
