@@ -129,4 +129,5 @@ dist
 .yarn/install-state.gz
 .pnp.*
 
-public/images
+public/imagesnode_modules/
+.vscode
