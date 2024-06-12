@@ -1,17 +1,17 @@
+import dotenv from "dotenv";
 import express from "express";
 import mongoose from "mongoose";
 import morgan from "morgan";
 import cors from "cors";
-
 import { notFoundError, errorHandler } from "./middlewares/error-handler.js";
-
 import platRoutes from "./routes/plat.js";
 import restaurantRoutes from "./routes/restaurant.js";
 import categorieRestaurantRoutes from "./routes/categorieRestaurant.js";
+dotenv.config();
 
 const app = express();
 const port = process.env.PORT || 9090;
-const databaseName = process.env.PORT || "bodysmith";
+const databaseName = process.env.DATABASENAME || "bodysmith";
 const db_url = process.env.DB_URL || `mongodb://127.0.0.1:27017`;
 
 mongoose.set("debug", true);

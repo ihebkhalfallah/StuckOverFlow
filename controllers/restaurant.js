@@ -2,6 +2,7 @@ import { validationResult } from "express-validator";
 import Plat from "../models/plat.js";
 import Restaurant from "../models/restaurant.js";
 import CategorieRestaurant from "../models/categorieRestaurant.js";
+import { getCoordinates } from "../services/geocodingService.js";
 
 export function getAllRestaurants(req, res) {
   Restaurant.find({})
@@ -15,7 +16,7 @@ export function getAllRestaurants(req, res) {
     });
 }
 
-export function addOneRestaurant(req, res) {
+export async function addOneRestaurant(req, res) {
   if (!validationResult(req).isEmpty()) {
     return res.status(400).json({ errors: validationResult(req).array() });
   }
@@ -29,6 +30,13 @@ export function addOneRestaurant(req, res) {
     imageRestaurant: req.file
       ? `${req.protocol}://${req.get("host")}/img/${req.file.filename}`
       : `${req.protocol}://${req.get("host")}/img/imageRestaurantDefault.jpg`,
+  };
+  const { latitude, longitude } = await getCoordinates(
+    req.body.adresseRestaurant
+  );
+  newRestaurantData.location = {
+    type: "Point",
+    coordinates: [longitude, latitude],
   };
 
   Restaurant.create(newRestaurantData)
@@ -67,7 +75,7 @@ export function getOneRestaurant(req, res) {
     });
 }
 
-export function updateOneRestaurant(req, res) {
+export async function updateOneRestaurant(req, res) {
   if (!validationResult(req).isEmpty()) {
     return res.status(400).json({ errors: validationResult(req).array() });
   }
@@ -81,6 +89,14 @@ export function updateOneRestaurant(req, res) {
     imageRestaurant: req.file
       ? `${req.protocol}://${req.get("host")}/img/${req.file.filename}`
       : undefined,
+  };
+
+  const { latitude, longitude } = await getCoordinates(
+    req.body.adresseRestaurant
+  );
+  updatedRestaurantData.location = {
+    type: "Point",
+    coordinates: [longitude, latitude],
   };
 
   Restaurant.findByIdAndUpdate(req.params.id, updatedRestaurantData, {
@@ -141,6 +157,8 @@ export function getRestaurantsByAdresse(req, res) {
   const searchPattern = new RegExp(searchString, "i");
 
   Restaurant.find({ adresseRestaurant: { $regex: searchPattern } })
+    .populate("categorieRestaurant")
+    .populate("plats")
     .then((restaurants) => {
       res.status(200).json(restaurants);
     })
