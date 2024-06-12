@@ -122,7 +122,7 @@ async function login(req) {
 
   const user = await getUserByEmail(email);
   console.log(">>>>>>>>>>>>>>>>", user);
-  
+
   if (!user) {
     throw new ApiError(401, "Invalid credentials"); // Use valid status code
   }
