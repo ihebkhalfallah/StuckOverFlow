@@ -26,7 +26,7 @@ export async function addOneRestaurant(req, res) {
     adresseRestaurant: req.body.adresseRestaurant,
     plats: req.body.plats,
     location: req.body.location,
-    categorieRestaurant: req.body.categorieRestaurant,
+    categorieRestaurant: JSON.parse(req.body.categorieRestaurant),
     imageRestaurant: req.file
       ? `${req.protocol}://${req.get("host")}/img/${req.file.filename}`
       : `${req.protocol}://${req.get("host")}/img/imageRestaurantDefault.jpg`,
@@ -79,13 +79,12 @@ export async function updateOneRestaurant(req, res) {
   if (!validationResult(req).isEmpty()) {
     return res.status(400).json({ errors: validationResult(req).array() });
   }
-
   let updatedRestaurantData = {
     nomRestaurant: req.body.nomRestaurant,
     adresseRestaurant: req.body.adresseRestaurant,
     plats: req.body.plats,
     location: req.body.location,
-    categorieRestaurant: req.body.categorieRestaurant,
+    categorieRestaurant: JSON.parse(req.body.categorieRestaurant),
     imageRestaurant: req.file
       ? `${req.protocol}://${req.get("host")}/img/${req.file.filename}`
       : undefined,
@@ -109,7 +108,6 @@ export async function updateOneRestaurant(req, res) {
             $addToSet: { restaurants: updatedRestaurant._id },
           })
       );
-
       const platUpdates = updatedRestaurant.plats.map((plat) =>
         Plat.findByIdAndUpdate(plat, {
           $addToSet: { restaurants: updatedRestaurant._id },
