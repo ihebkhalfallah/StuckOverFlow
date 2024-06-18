@@ -1,83 +1,182 @@
-    import Reclamation from '../models/reclamation.js';
 
-    export function rateReclamationResponse(req, res) {
-        const id = req.params.id;
-        const { rating } = req.body;
-        if (!rating || rating < 1 || rating > 5) {
-            return res.status(400).json({ message: 'Rating must be between 1 and 5' });
+import { sendEmailReclamation } from '../middlewares/ReclamationEmail.js';
+import Reclamation from '../models/reclamation.js';
+import User from '../models/user.js';
+
+export function getReclamations(req, res) {
+    Reclamation.find({})
+    .then(reclamations => {
+        res.status(200).json(reclamations);
+    })
+    .catch(err => {
+        res.status(500).json(err);
+    });
+}
+
+export function addReclamation(req, res) {
+    console.log(req.body);
+
+    Reclamation.create({
+        title: req.body.title,
+        description: req.body.description,
+        numTelReclamation: req.body.numTelReclamation,
+        email: req.body.email,
+        typeReclamation: req.body.typeReclamation,
+        userReclamation: req.body.userReclamation,
+        pieceJointe: `${req.protocol}://${req.get("host")}/doc/${req.file.filename}`,
+      }).then((newReclamation) => {
+        res.status(200).json(newReclamation);
+      })
+      .catch((err) => {
+        res.status(500).json({ error: err });
+      });
+    
+}
+export function getReclamation(req, res) {
+    Reclamation.findById(req.params.id)
+    .then(reclamation => {
+        res.status(200).json(reclamation);
+    })
+    .catch(err => {
+        res.status(500).json(err);
+    });
+}
+export function deleteReclamation(req, res) {
+    Reclamation.findByIdAndDelete(req.params.id)
+    .then(reclamation => {
+        res.status(200).json(reclamation);
+    })
+    .catch(err => {
+        res.status(500).json(err);
+    });
+}
+export function updateReclamation(req, res) {
+    Reclamation.findByIdAndUpdate(req.params.id,
+        {
+        title: req.body.title,
+        description: req.body.description,
+        numTelReclamation: req.body.numTelReclamation,
+        email: req.body.email,
+        typeReclamation: req.body.typeReclamation,
+        userReclamation: req.body.userReclamation,
         }
+        ,{new:true})
+    .then(reclamation => {
+        res.status(200).json(reclamation);
+    })
+    .catch(err => {
+        res.status(500).json(err);
+    });
 
-        Reclamation.findByIdAndUpdate(id, { rating }, { new: true })
-            .then((doc) => {
-                if (doc) {
-                    res.status(200).json(doc);
-                } else {
-                    res.status(404).json({ message: "Reclamation not found" });
+}
+export async function searchReclamation(req, res){
+    try {
+        const { key } = req.params;
+        const searchKey = new RegExp(key, 'i'); // 'i' for case-insensitive
+
+        const reclamations = await Reclamation.find({
+            $or: [
+                { title: searchKey },
+                { description: searchKey },
+                { email: searchKey },
+                { numTelReclamation: searchKey },
+            ]
+        })
+
+        res.status(200).json(reclamations);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
+
+
+
+// Traietement avancer Pou les Reclamation 
+export function fermerReclamation(req, res) {
+    Reclamation.findByIdAndUpdate(req.params.id,{status:false},{new:true})
+    .then(reclamation => {
+        res.status(200).json(reclamation);
+    })
+    .catch(err => {
+        res.status(500).json(err);
+    });
+
+}
+export function ouvrireReclamation(req, res) {
+    Reclamation.findByIdAndUpdate(req.params.id,{status:true},{new:true})
+    .then(reclamation => {
+        res.status(200).json(reclamation);
+    })
+    .catch(err => {
+        res.status(500).json(err);
+    });
+
+}
+export function traiterReclamation(req, res) {
+    Reclamation.findByIdAndUpdate(req.params.id,{etat:true},{new:true})
+    .then(reclamation => {
+        res.status(200).json(reclamation);
+        User.findById(reclamation.userReclamation)
+        .then(user => {
+            sendEmailReclamation(reclamation,user)
+        }).catch(err => {
+            res.status(500).json(err);
+        });
+    })
+    .catch(err => {
+        res.status(500).json(err);
+    });
+
+}
+
+
+// Function to get monthly reclamation count and percentage
+export async function getReclamationStats(req, res) {
+    try {
+        const reclamations = await Reclamation.aggregate([
+            {
+                $group: {
+                    _id: { $month: "$createdAt" },
+                    count: { $sum: 1 }
                 }
-            })
-            .catch((err) => {
-                res.status(500).json({ error: err });
-            });
-    }
-
-    export function getAllReclamations(req, res) {
-        Reclamation.find({})
-            .then((docs) => {
-                res.status(200).json(docs);
-            })
-            .catch((err) => {
-                res.status(500).json({ error: err });
-            });
-    }
-
-    export function getOneReclamation(req, res) {
-        const id = req.params.id;
-        Reclamation.findById(id)
-            .then((doc) => {
-                res.status(200).json(doc);
-            })
-            .catch((err) => {
-                res.status(500).json({ error: err });
-            });
-    }
-
-    export function createReclamation(req, res) {
-        const reclamation = new Reclamation(req.body);
-      
-        reclamation.save()
-          .then((doc) => {
-            res.status(201).json(doc);
-          })
-          .catch((err) => {
-            res.status(500).json({ error: err });
-          });
-      }
-
-      export function updateReclamation(req, res) {
-        const id = req.params.id;
-        const updatedReclamation = req.body;
-      
-        Reclamation.findByIdAndUpdate(id, updatedReclamation, { new: true })
-          .then((doc) => {
-            if (doc) {
-              io.emit('reclamationUpdated', { reclamationId: doc._id, clientId: doc.clientId });
-              console.log(`Client with id ${doc.clientId} has been notified about the update to reclamation ${doc._id}`);
-              res.status(200).json(doc);
-            } else {
-              res.status(404).json({ message: 'Reclamation not found' });
+            },
+            {
+                $project: {
+                    month: "$_id",
+                    count: 1,
+                    percentage: { $multiply: [{ $divide: ["$count", { $sum: "$count" }] }, 100] }
+                }
             }
-          })
-          .catch((err) => {
-            res.status(500).json({ error: err });
-          });
-      }
-    export function deleteOneReclamation(req, res) {
-        const id = req.params.id;
-        Reclamation.findByIdAndDelete(id)
-            .then((doc) => {
-                res.status(200).json(doc);
-            })
-            .catch((err) => {
-                res.status(500).json({ error: err });
-            });
+        ]);
+
+        const services = await Reclamation.aggregate([
+            {
+                $group: {
+                    _id: "$typeReclamation",
+                    count: { $sum: 1 }
+                }
+            },
+            {
+                $lookup: {
+                    from: "services", // make sure this matches your Service collection name
+                    localField: "_id",
+                    foreignField: "_id",
+                    as: "service"
+                }
+            },
+            {
+                $unwind: "$service"
+            },
+            {
+                $project: {
+                    serviceName: "$service.libelle",
+                    count: 1
+                }
+            }
+        ]);
+
+        res.status(200).json({ monthlyStats: reclamations, serviceStats: services });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
     }
+}

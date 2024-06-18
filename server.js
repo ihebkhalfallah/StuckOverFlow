@@ -1,51 +1,43 @@
 import express from 'express';
 import mongoose from 'mongoose';
-import morgan from 'morgan';
-import cors from 'cors';
-
-import http from 'http';
-import { Server } from 'socket.io'; // Import Server from socket.io
-
-
-import reclamationRoutes from './routes/reclamationRoutes.js';
-import reclamationTypeRoutes from './routes/reclamationTypeRoutes.js';
-import reclamationResponseRoutes from './routes/reclamationResponse.js';
 import { notFoundError, errorHandler } from './middlewares/error-handler.js';
 
+import reclamationRoute from './routes/reclamation.js';
+import serviceRoute from './routes/service.js';
+import commentRoute from './routes/commentaire.js';
+
+
+import morgan from 'morgan';
+import cors from 'cors';
 const app = express();
-const server = http.createServer(app);
-const io = new Server(server);
-
 const port = process.env.PORT || 9090;
-const databaseName = 'PIDEV';
-const db_url = process.env.DB_URL || `mongodb://127.0.0.1:27017`;
+const database = "Evento";
 
-mongoose.set('debug', true);
 mongoose.Promise = global.Promise;
+mongoose.connect(`mongodb://127.0.0.1:27017/${database}`)
+.then(() => {
+  console.log(`Connected to ${database} database`);
+})
+.catch(err => {
+  console.log(`Error connecting to ${database} database`, err);
+});
 
-mongoose
-  .connect(`${db_url}/${databaseName}`)
-  .then(() => {
-    console.log(`Connected to ${databaseName}`);
-  })
-  .catch(err => {
-    console.log(err);
-  });
-  
-
-app.use(cors());  
+app.use(cors());
 app.use(morgan('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use('/doc', express.static('public/documents'));
 
-app.use('/reclamation', reclamationRoutes);
-app.use('/reclamationResponse', reclamationResponseRoutes);
-app.use('/reclamationType', reclamationTypeRoutes);
+
+
+app.use('/reclamation', reclamationRoute);
+app.use('/service', serviceRoute);
+app.use('/comment', commentRoute);
+
 
 app.use(notFoundError);
 app.use(errorHandler);
 
-server.listen(port, () => {
-    console.log(`Server running at http://localhost:${port}/`);
+app.listen(port, () => {
+  console.log(`Server running at http://127.0.0.1:${port}/`);
 });
-export { io };

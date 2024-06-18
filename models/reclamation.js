@@ -1,23 +1,49 @@
-import mongoose from 'mongoose';
-const { Schema, model } = mongoose;
+import { Schema, model } from "mongoose";
 
 const reclamationSchema = new Schema({
-    title: { type: String, required: true },
-    userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-    reclamationTypeId: { type: mongoose.Schema.Types.ObjectId, ref: 'ReclamationType', required: true },
-    text: { type: String, required: true },
-    date: { type: Date, default: Date.now },
-    status: { type: String, enum: ['open', 'resolved', 'pending'], default: 'open' },
-    attachments: [{ type: String }],
-    priority: { type: String, enum: ['low', 'medium', 'high'], default: 'medium' },
-    comments: [{ 
-        userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
-        text: String,
-        date: { type: Date, default: Date.now }
-    }],
-    resolvedDate: { type: Date },
-    assignedTo: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
-    isNotified: { type: Boolean, default: false },
-    rating: { type: Number, min: 1, max: 5 }
-});
-export default model('Reclamation', reclamationSchema);
+    title: {
+        type: String,
+        required: true
+    },
+    description: {
+        type: String,
+        required: true
+    },
+    etat: {
+        type: Boolean,
+        required: true,
+        default:false,
+    }, 
+    status: {
+        type: Boolean,
+        required: true,
+        default:true,
+
+    }, 
+    email: {
+        type:String,
+        required: true
+    }, 
+    numTelReclamation: {
+        type:String,
+        required: true
+    }, 
+    pieceJointe: {
+        type: String,
+    },
+    typeReclamation: {
+        type: Schema.Types.ObjectId,
+        ref:'Service',
+    },
+    userReclamation: {
+        type: Schema.Types.ObjectId,
+        ref:'User',
+    },
+    
+},
+    {
+        timestamps: true
+    }
+);
+
+export default model("Reclamation", reclamationSchema);
