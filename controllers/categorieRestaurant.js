@@ -20,7 +20,7 @@ export function addOneCategorieRestaurant(req, res) {
 
   let newCategorieRestaurantData = {
     libelle: req.body.libelle,
-    restaurants: req.body.restaurants,
+    restaurants: JSON.parse(req.body.restaurants),
     imageCategorieRestaurant: req.file
       ? `${req.protocol}://${req.get("host")}/img/${req.file.filename}`
       : `${req.protocol}://${req.get(
@@ -52,6 +52,11 @@ export function getOneCategorieRestaurant(req, res) {
   CategorieRestaurant.findById(req.params.id)
     .populate("restaurants")
     .then((doc) => {
+      if (!doc) {
+        return res
+          .status(404)
+          .json({ error: "Categorie Restaurant not found" });
+      }
       res.status(200).json(doc);
     })
     .catch((err) => {
@@ -66,32 +71,46 @@ export function updateOneCategorieRestaurant(req, res) {
 
   let updatedCategorieRestaurantData = {
     libelle: req.body.libelle,
-    restaurants: req.body.restaurants,
+    restaurants: JSON.parse(req.body.restaurants),
     imageCategorieRestaurant: req.file
       ? `${req.protocol}://${req.get("host")}/img/${req.file.filename}`
       : undefined,
   };
 
-  CategorieRestaurant.findByIdAndUpdate(
-    req.params.id,
-    updatedCategorieRestaurantData,
-    { new: true }
-  )
-    .then(async (updatedCategorieRestaurant) => {
-      try {
-        const restaurantUpdates = updatedCategorieRestaurant.restaurants.map(
-          (restaurantId) =>
-            Restaurant.findByIdAndUpdate(restaurantId, {
-              $addToSet: {
-                categorieRestaurant: updatedCategorieRestaurant._id,
-              },
-            })
-        );
-        await Promise.all(restaurantUpdates);
-        res.status(200).json(updatedCategorieRestaurant);
-      } catch (err) {
-        res.status(500).json({ error: err.message });
-      }
+  CategorieRestaurant.findById(req.params.id)
+    .then(async (originalCategorieRestaurant) => {
+      const originalRestaurants = originalCategorieRestaurant.restaurants;
+      const updatedRestaurants = updatedCategorieRestaurantData.restaurants;
+
+      const restaurantsToAdd = updatedRestaurants.filter(
+        (restaurantId) => !originalRestaurants.includes(restaurantId)
+      );
+      const restaurantsToRemove = originalRestaurants.filter(
+        (restaurantId) => !updatedRestaurants.includes(restaurantId)
+      );
+
+      const addRestaurantUpdates = restaurantsToAdd.map((restaurantId) =>
+        Restaurant.findByIdAndUpdate(restaurantId, {
+          $addToSet: { categorieRestaurant: req.params.id },
+        })
+      );
+
+      const removeRestaurantUpdates = restaurantsToRemove.map((restaurantId) =>
+        Restaurant.findByIdAndUpdate(restaurantId, {
+          $pull: { categorieRestaurant: req.params.id },
+        })
+      );
+
+      await Promise.all([...addRestaurantUpdates, ...removeRestaurantUpdates]);
+
+      return CategorieRestaurant.findByIdAndUpdate(
+        req.params.id,
+        updatedCategorieRestaurantData,
+        { new: true }
+      );
+    })
+    .then((updatedCategorieRestaurant) => {
+      res.status(200).json(updatedCategorieRestaurant);
     })
     .catch((err) => {
       res.status(500).json({ error: err.message });

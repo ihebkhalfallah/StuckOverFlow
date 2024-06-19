@@ -24,7 +24,7 @@ export function addOnePlat(req, res) {
     cuisine: req.body.cuisine,
     calories: req.body.calories,
     categoriePlat: req.body.categoriePlat,
-    restaurants: req.body.restaurants,
+    restaurants: JSON.parse(req.body.restaurants),
     imagePlat: req.file
       ? `${req.protocol}://${req.get("host")}/img/${req.file.filename}`
       : `${req.protocol}://${req.get("host")}/img/imagePlatDefault.png`,
@@ -74,25 +74,44 @@ export function updateOnePlat(req, res) {
     cuisine: req.body.cuisine,
     calories: req.body.calories,
     categoriePlat: req.body.categoriePlat,
-    restaurants: req.body.restaurants,
+    restaurants: JSON.parse(req.body.restaurants),
     imagePlat: req.file
       ? `${req.protocol}://${req.get("host")}/img/${req.file.filename}`
       : undefined,
   };
 
-  Plat.findByIdAndUpdate(req.params.id, updatedPlatData, { new: true })
-    .then(async (updatedPlat) => {
-      try {
-        const restaurantUpdates = updatedPlat.restaurants.map((restaurantId) =>
-          Restaurant.findByIdAndUpdate(restaurantId, {
-            $addToSet: { plats: updatedPlat._id },
-          })
-        );
-        await Promise.all(restaurantUpdates);
-        res.status(200).json(updatedPlat);
-      } catch (err) {
-        res.status(500).json({ error: err.message });
-      }
+  Plat.findById(req.params.id)
+    .then(async (originalPlat) => {
+      const originalRestaurants = originalPlat.restaurants;
+      const updatedRestaurants = updatedPlatData.restaurants;
+
+      const restaurantsToAdd = updatedRestaurants.filter(
+        (restaurantId) => !originalRestaurants.includes(restaurantId)
+      );
+      const restaurantsToRemove = originalRestaurants.filter(
+        (restaurantId) => !updatedRestaurants.includes(restaurantId)
+      );
+
+      const addRestaurantUpdates = restaurantsToAdd.map((restaurantId) =>
+        Restaurant.findByIdAndUpdate(restaurantId, {
+          $addToSet: { plats: req.params.id },
+        })
+      );
+
+      const removeRestaurantUpdates = restaurantsToRemove.map((restaurantId) =>
+        Restaurant.findByIdAndUpdate(restaurantId, {
+          $pull: { plats: req.params.id },
+        })
+      );
+
+      await Promise.all([...addRestaurantUpdates, ...removeRestaurantUpdates]);
+
+      return Plat.findByIdAndUpdate(req.params.id, updatedPlatData, {
+        new: true,
+      });
+    })
+    .then((updatedPlat) => {
+      res.status(200).json(updatedPlat);
     })
     .catch((err) => {
       res.status(500).json({ error: err.message });
