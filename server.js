@@ -11,7 +11,7 @@ import morgan from 'morgan';
 import cors from 'cors';
 const app = express();
 const port = process.env.PORT || 9090;
-const database = "Evento";
+const database = "PIDEV";
 
 mongoose.Promise = global.Promise;
 mongoose.connect(`mongodb://127.0.0.1:27017/${database}`)
