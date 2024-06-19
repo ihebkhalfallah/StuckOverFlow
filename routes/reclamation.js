@@ -51,7 +51,7 @@ router.get("/search/:key", searchReclamation);
 
 router
   .route('/:id/traiter')
-  .patch(validateReclamation,traiterReclamation)
+  .patch(traiterReclamation)
 router
   .route('/:id/ouvrire')
   .patch(ouvrireReclamation)

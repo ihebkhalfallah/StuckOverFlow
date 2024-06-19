@@ -4,14 +4,14 @@ import nodemailer from 'nodemailer';
 const transporter = nodemailer.createTransport({
   service: 'outlook',
   auth: {
-    user: 'EventoTunisia@outlook.com', // Remplacez par votre adresse email
-    pass: 'esprit2024'         // Remplacez par votre mot de passe
+    user: 'bodysmithpidevesprit@outlook.fr', // Remplacez par votre adresse email
+    pass: 'pidev1234'         // Remplacez par votre mot de passe ou bodysmith1234
   }
 });
 
 export function sendEmailReclamation(reclamation,user) {
   const mailOptions = {
-    from: 'EventoTunisia@outlook.com',
+    from: 'bodysmithpidevesprit@outlook.fr',
     to:user.email,
     subject: 'About Your Reclamation',
     html: `
