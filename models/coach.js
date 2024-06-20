@@ -1,28 +1,27 @@
-import mongoose from 'mongoose';
+import mongoose from "mongoose";
 const { Schema, model } = mongoose;
 
 const coachSchema = new Schema(
-    {
-        NomCoach: {
-            type: String,
-            required: true
-        },
-        PrénomCoach: {
-            type: String,
-            required: true
-        },
-        Disponible: {
-            type: Boolean , //= true,
-            required: true
-        },
-        Spécialité: {
-            type:String,
-         
-        }
+  {
+    NomCoach: {
+      type: String,
+      required: true,
     },
-    {
-        timestamps: true
-    }
+    PrénomCoach: {
+      type: String,
+      required: true,
+    },
+    Disponible: {
+      type: Boolean, //= true,
+      required: true,
+    },
+    Speciality: {
+      type: String,
+    },
+  },
+  {
+    timestamps: true,
+  }
 );
 
-export default model('Coach', coachSchema);
+export default model("Coach", coachSchema);
