@@ -38,7 +38,7 @@ router
   .route('/')
   .get(getReclamations)
   .post(
-    multer("pieceJointe", 512 * 1024),validateReclamation,
+    multer("pieceJointe", 512 * 1024),
     addReclamation);
 
 router
