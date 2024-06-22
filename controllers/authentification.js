@@ -109,7 +109,9 @@ export const handleLogin = async (req, res) => {
     });
     res.status(200).send({ user, tokens });
   } catch (error) {
-    res.status(error.status || 500).send({ message: error.message });
+    const status = error.status || 500;
+    const message = error.message || "Internal Server Error";
+    res.status(status).send({ message });
   }
 };
 
@@ -117,27 +119,26 @@ async function login(req) {
   const { email, password } = req.body;
 
   if (!email || !password) {
-    throw new ApiError(400, "Email or password cannot be empty");
+    throw { status: 400, message: "Email or password cannot be empty" };
   }
 
   const user = await getUserByEmail(email);
-  console.log(">>>>>>>>>>>>>>>>", user);
-  
+
   if (!user) {
-    throw new ApiError(401, "Invalid credentials"); // Use valid status code
+    throw { status: 401, message: "Invalid credentials" };
   }
 
   if (!user.password) {
-    throw new ApiError(
-      httpStatus.UNAUTHORIZED,
-      "Please set your password before logging in"
-    );
+    throw {
+      status: 401,
+      message: "Please set your password before logging in",
+    };
   }
 
   const isPasswordMatch = await bcrypt.compare(password, user.password);
 
   if (!isPasswordMatch) {
-    throw new ApiError(httpStatus.UNAUTHORIZED, "Invalid credentials");
+    throw { status: 401, message: "Invalid credentials" };
   }
 
   delete user.password;

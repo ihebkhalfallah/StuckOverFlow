@@ -49,7 +49,7 @@ const seanceSchema = new Schema(
     coach: {
       type: Schema.Types.ObjectId,
       ref: "User",
-      required: true,
+     // required: true,
     },
   },
   {

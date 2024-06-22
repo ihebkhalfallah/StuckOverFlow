@@ -17,7 +17,7 @@ import session from "express-session";
 import seanceRoutes from "./routes/seance.js";
 import reservationRoutes from "./routes/reservation.js";
 
-import { ResetJob } from "./controllers/ManageCoach.js";
+import { ResetJob } from "./controllers/coach.js";
 
 // dotenv file
 dotenv.config({ path: ".env" });
@@ -43,8 +43,7 @@ app.use(
 app.use(passport.initialize());
 app.use(passport.session());
 
-// function to reset coaches disponibility
-ResetJob();
+
 
 mongoose
   .connect(`${db_url}/${databaseName}`)
@@ -66,13 +65,15 @@ app.use("/nutritionniste", nutritionnisteRoutes);
 app.use("/admin", adminRoutes);
 app.use("/auth", authRoutes);
 app.use("/approve", approveRoutes);
+app.use("/seance", seanceRoutes);
+app.use("/reservation", reservationRoutes);
 
 app.use(notFoundError);
 app.use(errorHundler);
 
-app.use("/seance", seanceRoutes);
-app.use("/reservation", reservationRoutes);
 
 app.listen(port, () => {
   console.log(`Server running at http://localhost:${port}/`);
 });
+// function to reset coaches disponibility
+ResetJob();

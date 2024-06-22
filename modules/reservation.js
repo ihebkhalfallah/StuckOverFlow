@@ -1,12 +1,14 @@
 import mongoose from "mongoose";
 
+
 const { Schema, model } = mongoose;
 
 const reservationSchema = new Schema(
   {
-    coach: {
+    User: {
       type: Schema.Types.ObjectId,
-      ref: "Coach",
+
+      ref: "User",
       required: true,
     },
     seance: {
