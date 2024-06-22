@@ -5,6 +5,7 @@ import { notFoundError, errorHandler } from './middlewares/error-handler.js';
 import reclamationRoute from './routes/reclamation.js';
 import serviceRoute from './routes/service.js';
 import commentRoute from './routes/commentaire.js';
+import userRoute from './routes/user.js';
 
 
 import morgan from 'morgan';
@@ -33,6 +34,7 @@ app.use('/doc', express.static('public/documents'));
 app.use('/reclamation', reclamationRoute);
 app.use('/service', serviceRoute);
 app.use('/comment', commentRoute);
+app.use('/user',userRoute); 
 
 
 app.use(notFoundError);

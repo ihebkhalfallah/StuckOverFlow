@@ -113,21 +113,35 @@ export function ouvrireReclamation(req, res) {
 
 }
 export function traiterReclamation(req, res) {
-    Reclamation.findByIdAndUpdate(req.params.id,{etat:true},{new:true})
-    .then(reclamation => {
-        res.status(200).json(reclamation);
-        User.findById(reclamation.userReclamation)
-        .then(user => {
-            sendEmailReclamation(reclamation,user)
-        }).catch(err => {
+    Reclamation.findByIdAndUpdate(req.params.id, { etat: true }, { new: true })
+        .then(reclamation => {
+            if (!reclamation) {
+                return res.status(404).json({ error: 'Reclamation not found' });
+            }
+            
+            User.findById(reclamation.userReclamation)
+                .then(user => {
+                    if (!user) {
+                        console.log('User not found for reclamation:', reclamation.userReclamation);
+                    } else {
+                        sendEmailReclamation(reclamation, user);
+                    }
+                })
+                .catch(err => {
+                    console.error('Error finding user:', err);
+                    // Log the error or handle it appropriately
+                });
+            
+            // Moved outside to ensure it's only sent once after all operations
+            res.status(200).json(reclamation);
+        })
+        .catch(err => {
+            console.error('Error updating reclamation:', err);
             res.status(500).json(err);
         });
-    })
-    .catch(err => {
-        res.status(500).json(err);
-    });
-
 }
+
+
 
 
 // Function to get monthly reclamation count and percentage

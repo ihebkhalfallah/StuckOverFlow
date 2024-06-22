@@ -86,16 +86,16 @@ export function sendEmail(email, verificationCode) {
   const transporter = nodemailer.createTransport({
     // Set up your email service configuration
     // For example, using Gmail SMTP:
-    service: 'Gmail',
+    service: 'Outlook',
     auth: {
-      user: 'omartaamallah4@gmail.com',
-      pass: 'xulr xaza rvyd heis'
+      user: 'ahmed.boukhari@esprit.tn',
+      pass: 'Pap06850'
     }
   });
 
   // Configure the email options
   const mailOptions = {
-    from: 'omartaamallah4@gmail.com',
+    from: 'ahmed.boukhari@esprit.tn',
     to: email,
     subject: 'Verification Code',
     text: `Your verification code is: ${verificationCode}`
