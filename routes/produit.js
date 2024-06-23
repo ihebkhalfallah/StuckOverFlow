@@ -30,7 +30,10 @@ router.route('/:id')
         body('quantity').isNumeric(),
         body('idCategorie').isMongoId(),
         putOnce
-    )
+    );
+
+router.route('/:id')
+    .get(getOnce)
     .delete(deleteOnce);
 
 export default router;

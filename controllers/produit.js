@@ -34,7 +34,7 @@ export function getAll(req, res) {
         });
 }
 
-export function addOnce(req, res) {
+export async function addOnce(req, res) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
         return res.status(400).json({ errors: errors.array() });
@@ -49,17 +49,19 @@ export function addOnce(req, res) {
         image: req.file ? `${req.protocol}://${req.get('host')}/img/${req.file.filename}` : undefined
     };
 
-    Categorie.findById(req.body.idCategorie) 
-        .then(categorie => {
-            if (!categorie) {
-                return res.status(400).json({ error: 'Invalid category ID' });
-            }
-            return Produit.create(newProduit);
-        })
-        .then(produit => res.status(200).json(produit))
-        .catch(err => {
-            res.status(500).json({ error: err.message });
-        });
+    try {
+        const categorie = await Categorie.findById(req.body.idCategorie);
+
+        if (!categorie) {
+            return res.status(400).json({ error: 'Invalid category ID' });
+        }
+
+        const produit = await Produit.create(newProduit);
+        return res.status(200).json(produit);
+
+    } catch (err) {
+        return res.status(500).json({ error: err.message });
+    }
 }
 
 export function getOnce(req, res) {

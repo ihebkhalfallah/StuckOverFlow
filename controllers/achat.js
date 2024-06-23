@@ -1,6 +1,6 @@
 import Achat from "../models/achat.js";
 import Produit from "../models/produit.js"; // Importe le modèle Produit
-import User from "../models/user.js";
+import User from "../modules/user.js";
 
 export function buyProduit(req, res) { // Renomme la fonction en buyProduit
   Produit.findById(req.params.idProduit) // Remplace findById avec idProduit
