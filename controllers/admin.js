@@ -223,13 +223,13 @@ const reactiveAccount = async (req, res) => {
 
 const getUserByEmail = async (email) => {
   if (!email) {
-    throw new ApiError("Email is required", 400);
+    return res.status(400).send("Email is required");
   }
 
   const user = await User.findOne({ email });
 
   if (!user) {
-    throw new ApiError("User not found", 404);
+    return res.status(404).send("User not found");
   }
 
   return user;

@@ -54,7 +54,7 @@ app.use("/user", userRoutes);
 app.use("/coach", coachRoutes);
 app.use("/nutritionniste", nutritionnisteRoutes);
 app.use("/admin", adminRoutes);
-app.use("/auth", authRoutes);
+app.use("/auth", authRoutes); 
 app.use("/approve", approveRoutes);
 
 app.use(notFoundError);

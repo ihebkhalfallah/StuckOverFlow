@@ -109,7 +109,9 @@ export const handleLogin = async (req, res) => {
     });
     res.status(200).send({ user, tokens });
   } catch (error) {
-    res.status(error.status || 500).send({ message: error.message });
+    const status = error.status || 500;
+    const message = error.message || "Internal Server Error";
+    res.status(status).send({ message });
   }
 };
 
@@ -117,32 +119,34 @@ async function login(req) {
   const { email, password } = req.body;
 
   if (!email || !password) {
-    throw new ApiError(400, "Email or password cannot be empty");
+    throw { status: 400, message: "Email or password cannot be empty" };
   }
 
   const user = await getUserByEmail(email);
-  console.log(">>>>>>>>>>>>>>>>", user);
-  
+
   if (!user) {
-    throw new ApiError(401, "Invalid credentials"); // Use valid status code
+    throw { status: 401, message: "Invalid credentials" };
   }
 
   if (!user.password) {
-    throw new ApiError(
-      httpStatus.UNAUTHORIZED,
-      "Please set your password before logging in"
-    );
+    throw {
+      status: 401,
+      message: "Please set your password before logging in",
+    };
   }
 
   const isPasswordMatch = await bcrypt.compare(password, user.password);
 
   if (!isPasswordMatch) {
-    throw new ApiError(httpStatus.UNAUTHORIZED, "Invalid credentials");
+    throw { status: 401, message: "Invalid credentials" };
   }
 
   delete user.password;
   return user;
 }
+
+// import { User, Token } from "./models"; // adjust the import according to your project structure
+// import { sendEmail } from "./emailService"; // adjust the import according to your project structure
 
 export const forgotPassword = async (req, res) => {
   const { email } = req.body;
@@ -156,17 +160,18 @@ export const forgotPassword = async (req, res) => {
     const resetToken = crypto.randomBytes(32).toString("hex");
     const hash = await bcrypt.hash(resetToken, 10);
 
-    console.log(">>>>>>>>>>>>>>>>>" + hash);
     await new Token({
       userId: user._id,
       token: hash,
       createdAt: Date.now(),
     }).save();
 
+    const resetLink = `http://localhost:4200/reset-password?token=${resetToken}&email=${email}`;
+
     const emailContent = `
       <p>You requested a password reset.</p>
-      <p>Your reset token is: <strong>${resetToken}</strong></p>
-      <p>Please use this token to reset your password by sending it along with your new password to the reset password endpoint.</p>
+      <p>Click the link below to reset your password:</p>
+      <a href="${resetLink}">Reset Password</a>
     `;
     await sendEmail(user.email, "Password Reset Request", emailContent);
 
