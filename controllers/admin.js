@@ -1,8 +1,10 @@
 import User from "../modules/user.js";
 import bcrypt from "bcrypt";
-import { sendApprovalCode } from "../services/email.service.js";
 import crypto from "crypto";
-const createUser = async (req, res) => {
+import ApiError from "../utils/apiError.js";
+import { sendApprovalCode } from "../services/email.service.js";
+
+const createAdmin = async (req, res) => {
   const {
     firstName,
     lastName,
@@ -15,13 +17,14 @@ const createUser = async (req, res) => {
   } = req.body;
 
   try {
+    const hashedPassword = await bcrypt.hash(password, 10);
     const approvalCode = crypto.randomBytes(3).toString("hex");
-    const user = new User({
+    const admin = new User({
       firstName,
       lastName,
       nickName,
       birthDate,
-      role: "USER",
+      role: "ADMIN",
       email,
       password,
       adresse,
@@ -29,35 +32,53 @@ const createUser = async (req, res) => {
       approvalCode,
       isApproved: false,
     });
-    await user.save();
+    await admin.save();
+
     await sendApprovalCode(email, approvalCode);
 
     res.status(201).json({
       message: "User created. Approval code sent to email.",
-      user: user,
+      user: admin,
     });
   } catch (err) {
     console.log(err);
     res.status(500).json({ message: "Server error", error: err.message });
   }
 };
-
-
 const getUser = async (req, res) => {
   try {
-    const user = await User.findById(req.params.id);
-    if (!user) {
-      return res.status(404).json({ message: "User not found" });
+    const admin = await User.findById(req.params.id);
+    if (!admin) {
+      return res.status(404).json({ message: "Admin not found" });
     }
-    res.status(200).json(user);
+    res.status(200).json(admin);
   } catch (err) {
     res.status(500).json({ message: "Server error", error: err.message });
   }
 };
 
+const getAllAccounts = async (req, res) => {
+  try {
+    const admins = await User.find({});
+    res.status(200).json({ results: admins.length, data: admins });
+  } catch (err) {
+    res.status(500).json({ message: "Server error", error: err.message });
+  }
+};
+const getAllAdmins = async (req, res) => {
+  try {
+    const admins = await User.find({ role: "ADMIN" });
+    res.status(200).json({ results: admins.length, data: admins });
+  } catch (err) {
+    res.status(500).json({ message: "Server error", error: err.message });
+  }
+};
 const getAllUsers = async (req, res) => {
   try {
-    const users = await User.find({});
+    const users = await User.find({ role: "USER" });
+    if (!users || users.length === 0) {
+      return res.status(404).json({ message: "Users not found" });
+    }
     res.status(200).json({ results: users.length, data: users });
   } catch (err) {
     res.status(500).json({ message: "Server error", error: err.message });
@@ -67,7 +88,6 @@ const getAllUsers = async (req, res) => {
 const getAllCoaches = async (req, res) => {
   try {
     const coaches = await User.find({ role: "COACH" });
-    console.log("coaches :", coaches);
 
     if (!coaches || coaches.length === 0) {
       return res.status(404).json({ message: "Coaches not found" });
@@ -109,7 +129,7 @@ const deleteUser = async (req, res) => {
   }
 };
 
-const updateUser = async (req, res) => {
+const updateAdmin = async (req, res) => {
   try {
     const id = req.params.id;
     const updates = req.body;
@@ -133,16 +153,16 @@ const updateUser = async (req, res) => {
       return res.status(400).json({ error: "Invalid updates!" });
     }
 
-    const user = await User.findByIdAndUpdate(id, updates, {
+    const admin = await User.findByIdAndUpdate(id, updates, {
       new: true,
       runValidators: true,
     });
 
-    if (!user) {
+    if (!admin) {
       return res.status(404).json({ message: "User not found" });
     }
 
-    res.status(200).json(user);
+    res.status(200).json(admin);
   } catch (err) {
     res.status(500).json({ message: "Server error", error: err.message });
   }
@@ -151,27 +171,82 @@ const updateUser = async (req, res) => {
 const changePassword = async (req, res) => {
   const id = req.params.id;
   const newPassword = await bcrypt.hash(req.body.password, 10);
-  const user = await User.findOneAndUpdate(
+  const admin = await User.findOneAndUpdate(
     { _id: id },
     { password: newPassword },
     { new: true }
   );
 
-  if (!user) {
-    return res.status(404).json({ message: "User not found" });
+  if (!admin) {
+    return res.status(404).json({ message: "Admin not found" });
   }
   res.status(200).json({
     response: `User ${user.firstName} ${user.lastName} password has been modified`,
   });
 };
 
+const desactiveAccount = async (req, res) => {
+  const id = req.params.id;
+  const account = await User.findById(id);
+  if (account.active === false) {
+    return res.status(404).json({ message: "Account is already desactivated" });
+  }
+
+  if (!account) {
+    return res.status(404).json({ message: "Account not found" });
+  }
+
+  const newAccount = await User.findOneAndUpdate(
+    { _id: id },
+    { active: false }
+  );
+  res.status(200).json({
+    response: `Account ${newAccount.firstName} ${newAccount.lastName} has been descativated`,
+  });
+};
+
+const reactiveAccount = async (req, res) => {
+  const id = req.params.id;
+  const account = await User.findById(id);
+  if (account.active === true) {
+    return res.status(404).json({ message: "Account is already activated" });
+  }
+  if (!account) {
+    return res.status(404).json({ message: "Account not found" });
+  }
+
+  const newAccount = await User.findOneAndUpdate({ _id: id }, { active: true });
+  res.status(200).json({
+    response: `Account ${newAccount.firstName} ${newAccount.lastName} has been reativated`,
+  });
+};
+
+const getUserByEmail = async (email) => {
+  if (!email) {
+    return res.status(400).send("Email is required");
+  }
+
+  const user = await User.findOne({ email });
+
+  if (!user) {
+    return res.status(404).send("User not found");
+  }
+
+  return user;
+};
+
 export {
-  createUser,
+  createAdmin,
   getUser,
+  getAllAccounts,
+  getAllAdmins,
   getAllUsers,
   getAllCoaches,
   getAllNutritionnistes,
   deleteUser,
-  updateUser,
+  updateAdmin,
   changePassword,
+  desactiveAccount,
+  reactiveAccount,
+  getUserByEmail,
 };

@@ -1,44 +1,64 @@
-import express from 'express';
-import mongoose from 'mongoose';
-import { notFoundError, errorHandler } from './middlewares/error-handler.js';
+import express from "express";
+import mongoose from "mongoose";
+import cors from "cors";
+import morgan from "morgan";
+import dotenv from "dotenv";
+import { errorHundler, notFoundError } from "./middlewares/errorr-handler.js";
+import userRoutes from "./routes/user.js";
+import coachRoutes from "./routes/coach.js";
+import nutritionnisteRoutes from "./routes/nutritionniste.js";
+import adminRoutes from "./routes/admin.js";
+import authRoutes from "./routes/auth.js";
+import approveRoutes from "./routes/approve.js";
+import { createAdmin } from "./controllers/adminSeed.js";
+import passport from "passport";
+import session from "express-session";
 
-import reclamationRoute from './routes/reclamation.js';
-import serviceRoute from './routes/service.js';
-import commentRoute from './routes/commentaire.js';
-import userRoute from './routes/user.js';
+dotenv.config({ path: ".env" });
 
-
-import morgan from 'morgan';
-import cors from 'cors';
-const app = express();
-const port = process.env.PORT || 9090;
-const database = "PIDEV";
-
+mongoose.set("debug", true);
 mongoose.Promise = global.Promise;
-mongoose.connect(`mongodb://127.0.0.1:27017/${database}`)
-.then(() => {
-  console.log(`Connected to ${database} database`);
-})
-.catch(err => {
-  console.log(`Error connecting to ${database} database`, err);
-});
+
+const app = express();
+const port = process.env.PORT;
+const databaseName = process.env.DATABASENAME;
+const db_url = process.env.DB_URL;
+app.use(express.json());
+
+app.use(
+  session({
+    secret: process.env.SESSION_SECRET,
+    resave: false,
+    saveUninitialized: true,
+  })
+);
+
+app.use(passport.initialize());
+app.use(passport.session());
+
+mongoose
+  .connect(`${db_url}/${databaseName}`)
+  .then(() => {
+    console.log(`Connected to ${databaseName}`);
+  })
+  .catch((err) => {
+    console.log(err);
+  });
 
 app.use(cors());
-app.use(morgan('dev'));
+app.use(morgan("dev"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use('/doc', express.static('public/documents'));
 
-
-
-app.use('/reclamation', reclamationRoute);
-app.use('/service', serviceRoute);
-app.use('/comment', commentRoute);
-app.use('/user',userRoute); 
-
+app.use("/user", userRoutes);
+app.use("/coach", coachRoutes);
+app.use("/nutritionniste", nutritionnisteRoutes);
+app.use("/admin", adminRoutes);
+app.use("/auth", authRoutes); 
+app.use("/approve", approveRoutes);
 
 app.use(notFoundError);
-app.use(errorHandler);
+app.use(errorHundler);
 
 app.listen(port, () => {
   console.log(`Server running at http://127.0.0.1:${port}/`);

@@ -1,5 +1,6 @@
-node_modules
-server.js
+node_modules/
+.vscode
+.env
 .gitignore
 ./controllers/user.js
 ./routes/user.js

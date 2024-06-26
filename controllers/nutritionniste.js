@@ -1,8 +1,9 @@
 import User from "../modules/user.js";
 import bcrypt from "bcrypt";
-import { sendApprovalCode } from "../services/email.service.js";
 import crypto from "crypto";
-const createUser = async (req, res) => {
+import { sendApprovalCode } from "../services/email.service.js";
+
+const createNutritionniste = async (req, res) => {
   const {
     firstName,
     lastName,
@@ -15,13 +16,15 @@ const createUser = async (req, res) => {
   } = req.body;
 
   try {
+    const hashedPassword = await bcrypt.hash(password, 10);
     const approvalCode = crypto.randomBytes(3).toString("hex");
+
     const user = new User({
       firstName,
       lastName,
       nickName,
       birthDate,
-      role: "USER",
+      role: "NUTRITIONNISTE",
       email,
       password,
       adresse,
@@ -42,37 +45,13 @@ const createUser = async (req, res) => {
   }
 };
 
-
-const getUser = async (req, res) => {
+const getNutritionniste = async (req, res) => {
   try {
     const user = await User.findById(req.params.id);
     if (!user) {
-      return res.status(404).json({ message: "User not found" });
+      return res.status(404).json({ message: "Nutritionniste not found" });
     }
     res.status(200).json(user);
-  } catch (err) {
-    res.status(500).json({ message: "Server error", error: err.message });
-  }
-};
-
-const getAllUsers = async (req, res) => {
-  try {
-    const users = await User.find({});
-    res.status(200).json({ results: users.length, data: users });
-  } catch (err) {
-    res.status(500).json({ message: "Server error", error: err.message });
-  }
-};
-
-const getAllCoaches = async (req, res) => {
-  try {
-    const coaches = await User.find({ role: "COACH" });
-    console.log("coaches :", coaches);
-
-    if (!coaches || coaches.length === 0) {
-      return res.status(404).json({ message: "Coaches not found" });
-    }
-    res.status(200).json({ results: coaches.length, coaches: coaches });
   } catch (err) {
     res.status(500).json({ message: "Server error", error: err.message });
   }
@@ -94,22 +73,24 @@ const getAllNutritionnistes = async (req, res) => {
   }
 };
 
-const deleteUser = async (req, res) => {
+const deleteNutritionnistes = async (req, res) => {
   try {
     const id = req.params.id;
     const user = await User.findByIdAndDelete(id);
     if (!user) {
-      return res.status(404).json({ message: "User not found" });
+      return res.status(404).json({ message: "Nutritionnistes not found" });
     }
     res
       .status(200)
-      .send(`User ${user.firstName} ${user.lastName} has been deleted`);
+      .send(
+        `Nutritionnistes ${user.firstName} ${user.lastName} has been deleted`
+      );
   } catch (err) {
     res.status(500).json({ message: "Server error", error: err.message });
   }
 };
 
-const updateUser = async (req, res) => {
+const updateNutritionnistes = async (req, res) => {
   try {
     const id = req.params.id;
     const updates = req.body;
@@ -124,7 +105,6 @@ const updateUser = async (req, res) => {
       "height",
     ];
     const actualUpdates = Object.keys(updates);
-    //   const isValidOperation = actualUpdates.every((update) => allowedUpdates.includes(update));
     const isValidOperation = actualUpdates.some((update) =>
       allowedUpdates.includes(update)
     );
@@ -139,7 +119,7 @@ const updateUser = async (req, res) => {
     });
 
     if (!user) {
-      return res.status(404).json({ message: "User not found" });
+      return res.status(404).json({ message: "Nutritionnistes not found" });
     }
 
     res.status(200).json(user);
@@ -148,7 +128,7 @@ const updateUser = async (req, res) => {
   }
 };
 
-const changePassword = async (req, res) => {
+const changePasswordNutritionnistes = async (req, res) => {
   const id = req.params.id;
   const newPassword = await bcrypt.hash(req.body.password, 10);
   const user = await User.findOneAndUpdate(
@@ -158,20 +138,18 @@ const changePassword = async (req, res) => {
   );
 
   if (!user) {
-    return res.status(404).json({ message: "User not found" });
+    return res.status(404).json({ message: "Nutritionnistes not found" });
   }
   res.status(200).json({
-    response: `User ${user.firstName} ${user.lastName} password has been modified`,
+    response: `Nutritionnistes ${user.firstName} ${user.lastName} password has been modified`,
   });
 };
 
 export {
-  createUser,
-  getUser,
-  getAllUsers,
-  getAllCoaches,
+  createNutritionniste,
   getAllNutritionnistes,
-  deleteUser,
-  updateUser,
-  changePassword,
+  getNutritionniste,
+  updateNutritionnistes,
+  deleteNutritionnistes,
+  changePasswordNutritionnistes,
 };
