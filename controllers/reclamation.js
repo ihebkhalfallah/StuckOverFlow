@@ -1,7 +1,7 @@
 
 import { sendEmailReclamation } from '../middlewares/ReclamationEmail.js';
 import Reclamation from '../models/reclamation.js';
-import User from '../models/user.js';
+import User from '../modules/user.js';
 
 export function getReclamations(req, res) {
     Reclamation.find({})

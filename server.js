@@ -4,6 +4,9 @@ import cors from "cors";
 import morgan from "morgan";
 import dotenv from "dotenv";
 import { errorHundler, notFoundError } from "./middlewares/errorr-handler.js";
+import reclamationRoutes from "./routes/reclamation.js";
+import commentaireRoutes from "./routes/commentaire.js";
+import serviceRoutes from "./routes/service.js" 
 import userRoutes from "./routes/user.js";
 import coachRoutes from "./routes/coach.js";
 import nutritionnisteRoutes from "./routes/nutritionniste.js";
@@ -13,6 +16,7 @@ import approveRoutes from "./routes/approve.js";
 import { createAdmin } from "./controllers/adminSeed.js";
 import passport from "passport";
 import session from "express-session";
+import service from "./models/service.js";
 
 dotenv.config({ path: ".env" });
 
@@ -56,6 +60,9 @@ app.use("/nutritionniste", nutritionnisteRoutes);
 app.use("/admin", adminRoutes);
 app.use("/auth", authRoutes); 
 app.use("/approve", approveRoutes);
+app.use("/reclamation", reclamationRoutes);
+app.use("/service", serviceRoutes);
+app.use("/commentaire", commentaireRoutes);
 
 app.use(notFoundError);
 app.use(errorHundler);
