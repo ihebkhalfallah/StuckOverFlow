@@ -17,6 +17,8 @@ import session from "express-session";
 import platRoutes from "./routes/plat.js";
 import restaurantRoutes from "./routes/restaurant.js";
 import categorieRestaurantRoutes from "./routes/categorieRestaurant.js";
+import favoriteRoutes from "./routes/favoritePlan.js";
+
 dotenv.config();
 
 dotenv.config({ path: ".env" });
@@ -65,6 +67,7 @@ app.use("/approve", approveRoutes);
 app.use("/plat", platRoutes);
 app.use("/restaurant", restaurantRoutes);
 app.use("/categorieRestaurant", categorieRestaurantRoutes);
+app.use("/favorites", favoriteRoutes);
 
 app.use(notFoundError);
 app.use(errorHundler);
