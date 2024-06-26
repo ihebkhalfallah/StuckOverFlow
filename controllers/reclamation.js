@@ -15,7 +15,7 @@ export function getReclamations(req, res) {
 
     export function addReclamation(req, res) {
         console.log(req.body);
-
+      /*  pieceJointe: `${req.protocol}://${req.get("host")}/doc/${req.file.filename}`,*/
         Reclamation.create({
             title: req.body.title,
             description: req.body.description,
@@ -23,7 +23,7 @@ export function getReclamations(req, res) {
             email: req.body.email,
             typeReclamation: req.body.typeReclamation,
             userReclamation: req.body.userReclamation,
-            pieceJointe: `${req.protocol}://${req.get("host")}/doc/${req.file.filename}`,
+            
         }).then((newReclamation) => {
             res.status(200).json(newReclamation);
         })
