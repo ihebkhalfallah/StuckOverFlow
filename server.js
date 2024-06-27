@@ -11,6 +11,12 @@ import nutritionnisteRoutes from "./routes/nutritionniste.js";
 import adminRoutes from "./routes/admin.js";
 import authRoutes from "./routes/auth.js";
 import approveRoutes from "./routes/approve.js";
+import panierRoutes from './routes/panier.js'; // Importe les routes du panier
+import categorieRoutes from './routes/categorie.js';
+import achatRoutes from './routes/achat.js';
+import produitRoutes from './routes/produit.js'; // Importe les routes des produits
+
+import { createAdmin } from "./controllers/adminSeed.js";
 import passport from "passport";
 import session from "express-session";
 //zouhour
@@ -58,6 +64,7 @@ app.use(cors());
 app.use(morgan("dev"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use('/img', express.static('public/images'));
 
 app.use("/user", userRoutes);
 app.use("/coach", coachRoutes);
@@ -67,6 +74,10 @@ app.use("/auth", authRoutes);
 app.use("/approve", approveRoutes);
 app.use("/seance", seanceRoutes);
 app.use("/reservation", reservationRoutes);
+app.use('/produit', produitRoutes); // Utilise les routes des produits
+app.use('/buy', achatRoutes);
+app.use('/categorie', categorieRoutes);
+app.use('/panier', panierRoutes); // Utilise les routes du panier
 
 app.use(notFoundError);
 app.use(errorHundler);
