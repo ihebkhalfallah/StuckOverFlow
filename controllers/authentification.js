@@ -216,3 +216,63 @@ export const resetPassword = async (req, res) => {
     res.status(500).send({ message: "Server error", error: error.message });
   }
 };
+
+export const authenticateWithToken = (req, res, next) => {
+  passport.authenticate("google", { session: false }, async (err, user) => {
+    try {
+      if (err) {
+        console.error("Error authenticating with Google:", err);
+        return res.status(500).send({ message: "Authentication failed" });
+      }
+
+      if (!user) {
+        return res.redirect("/login");
+      }
+
+      const tokens = await generateAuthTokens({
+        userId: user.id,
+        roleId: user.role,
+      });
+
+      res.json({ user, tokens });
+    } catch (error) {
+      console.error("Error processing Google authentication:", error);
+      res.status(500).send({ message: "Authentication failed" });
+    }
+  })(req, res, next);
+};
+
+export const signInUsingToken = async (req, res, next) => {
+  try {
+    const { accessToken } = req.body;
+
+    if (!accessToken) {
+      throw new ApiError(httpStatus.BAD_REQUEST, "Access token is required");
+    }
+
+    let decodedToken;
+    try {
+      decodedToken = jwt.verify(accessToken, process.env.JWT_SECRET);
+    } catch (error) {
+      throw new ApiError(
+        httpStatus.UNAUTHORIZED,
+        "Invalid or expired access token"
+      );
+    }
+
+    const user = await User.findById(decodedToken.sub);
+
+    if (!user) {
+      throw new ApiError(httpStatus.UNAUTHORIZED, "User not found");
+    }
+
+    const tokens = await generateAuthTokens({
+      userId: user.id,
+      roleId: user.role_id,
+    });
+
+    res.status(200).send({ user, tokens });
+  } catch (error) {
+    next(error);
+  }
+};

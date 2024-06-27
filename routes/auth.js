@@ -4,6 +4,8 @@ import {
   handleLogin,
   forgotPassword,
   resetPassword,
+  authenticateWithToken,
+  signInUsingToken,
 } from "../controllers/authentification.js";
 import { resetPasswordvalidate } from "../utils/validators/resetPasswordValidator.js";
 import { generateAuthTokens } from "../controllers/token.js";
@@ -40,6 +42,7 @@ router.get(
     }
   }
 );
+router.post("/sign-in-using-token", signInUsingToken);
 
 router.post("/login", handleLogin);
 router.post("/forgot-password", forgotPassword);

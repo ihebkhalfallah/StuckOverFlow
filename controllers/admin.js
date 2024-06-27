@@ -181,7 +181,7 @@ const changePassword = async (req, res) => {
     return res.status(404).json({ message: "Admin not found" });
   }
   res.status(200).json({
-    response: `User ${user.firstName} ${user.lastName} password has been modified`,
+    response: `User ${admin.firstName} ${admin.lastName} password has been modified`,
   });
 };
 
