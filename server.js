@@ -5,6 +5,9 @@ import morgan from "morgan";
 import dotenv from "dotenv";
 //iheb
 import { errorHundler, notFoundError } from "./middlewares/errorr-handler.js";
+import reclamationRoutes from "./routes/reclamation.js";
+import commentaireRoutes from "./routes/commentaire.js";
+import serviceRoutes from "./routes/service.js" 
 import userRoutes from "./routes/user.js";
 import coachRoutes from "./routes/coach.js";
 import nutritionnisteRoutes from "./routes/nutritionniste.js";
@@ -16,6 +19,7 @@ import session from "express-session";
 //zouhour
 import seanceRoutes from "./routes/seance.js";
 import reservationRoutes from "./routes/reservation.js";
+import service from "./models/service.js";
 
 import { ResetJob } from "./controllers/coach.js";
 
@@ -67,6 +71,9 @@ app.use("/auth", authRoutes);
 app.use("/approve", approveRoutes);
 app.use("/seance", seanceRoutes);
 app.use("/reservation", reservationRoutes);
+app.use("/reclamation", reclamationRoutes);
+app.use("/service", serviceRoutes);
+app.use("/commentaire", commentaireRoutes);
 
 app.use(notFoundError);
 app.use(errorHundler);
