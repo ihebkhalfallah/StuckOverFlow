@@ -7,6 +7,6 @@ router.post('/ajouter', ajouterAuPanier);
 router.post('/retirer', retirerDuPanier);
 router.get('/consulter/:userId', consulterPanier);
 router.delete('/supprimer/:userId', supprimerPanier); 
-router.post('/valider', validerPanier); // La route pour valider le panier
+router.post('/valider', validerPanier);
 
 export default router;

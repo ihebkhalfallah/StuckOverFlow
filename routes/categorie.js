@@ -1,6 +1,6 @@
 import express from 'express';
 import { body } from 'express-validator';
-import {getAll,addOnce,getOnce,putOnce,deleteOnce} from '../controllers/categorie.js';
+import {getAll,addOnce,getOnce,putOnce,deleteOnce,getByName} from '../controllers/categorie.js';
 
 const router = express.Router();
 
@@ -18,5 +18,8 @@ router.route('/:id')
         putOnce
     )
     .delete(deleteOnce);
+
+router.route('/byname/:nom')
+    .get(getByName);
 
 export default router;

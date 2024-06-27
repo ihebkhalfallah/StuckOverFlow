@@ -2,48 +2,38 @@ import Panier from '../models/panier.js';
 import Produit from '../models/produit.js';
 import nodemailer from 'nodemailer';
 
-// Configurer nodemailer
 const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
-    user: 'molka953@gmail.com',  // Remplacez par votre email
-    pass: 'kwgc uyok uzyt ehaq' // Remplacez par votre mot de passe
+    user: 'molka953@gmail.com',
+    pass: 'kwgc uyok uzyt ehaq'
   }
 });
 
-// Email statique
-const staticEmail = 'molkagmar1@gmail.com';  // Remplacez par l'email du client
+const staticEmail = 'molkagmar1@gmail.com';
 
-// Ajouter un produit au panier
 export async function ajouterAuPanier(req, res) {
     const { userId, produitId, quantity } = req.body;
 
     try {
-        // Recherche du produit dans la base de données pour obtenir son prix
         const produit = await Produit.findById(produitId);
         if (!produit) {
             return res.status(404).json({ success: false, message: 'Le produit spécifié n\'existe pas' });
         }
 
-        // Obtenir le prix du produit
         const prix = produit.price;
 
         let panier = await Panier.findOne({ userId });
         if (panier) {
-            // Si un panier existe déjà pour cet utilisateur, ajoute le produit au panier existant
             const produitIndex = panier.produits.findIndex(item => item.produitId.toString() === produitId.toString());
             if (produitIndex !== -1) {
-                // Si le produit existe déjà dans le panier, met à jour la quantité
                 panier.produits[produitIndex].quantity += quantity;
             } else {
-                // Sinon, ajoute le nouveau produit au panier
                 panier.produits.push({ produitId, quantity });
             }
-            // Mettre à jour le totalPrice
             panier.totalPrice += quantity * prix;
             await panier.save();
         } else {
-            // Si aucun panier n'existe pour cet utilisateur, crée un nouveau panier
             panier = await Panier.create({ userId, produits: [{ produitId, quantity }], totalPrice: quantity * prix });
         }
         res.status(200).json({ success: true, message: 'Produit ajouté au panier avec succès' });
@@ -182,9 +172,4 @@ export async function validerPanier(req, res) {
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
-
 }
-
-
-
-

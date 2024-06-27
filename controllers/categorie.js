@@ -59,3 +59,20 @@ export function deleteOnce(req, res) {
         })
         .catch(err => res.status(500).json({ error: err.message }));
 }
+
+export async function getByName(req, res) {
+    try {
+        const nom = req.params.nom;
+
+        const category = await Categorie.findOne({ nom });
+
+        if (!category) {
+            return res.status(404).json({ error: 'Category not found' });
+        }
+
+        res.json(category);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Server error' });
+    }
+}

@@ -35,34 +35,31 @@ export function getAll(req, res) {
 }
 
 export async function addOnce(req, res) {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-        return res.status(400).json({ errors: errors.array() });
-    }
+    let img = req.body.image
 
-    const newProduit = {
-        title: req.body.title,
-        description: req.body.description,
-        price: req.body.price,
-        quantity: req.body.quantity,
-        idCategorie: req.body.idCategorie,
-        image: req.file ? `${req.protocol}://${req.get('host')}/img/${req.file.filename}` : undefined
-    };
-
-    try {
-        const categorie = await Categorie.findById(req.body.idCategorie);
-
-        if (!categorie) {
-            return res.status(400).json({ error: 'Invalid category ID' });
+        const newProduit = {
+                title: req.body.title,
+                description: req.body.description,
+                price: req.body.price,
+                quantity: req.body.quantity,
+                idCategorie: req.body.idCategorie,
+                image: img ? `${req.protocol}://${req.get('host')}/img/${img.substring(img.lastIndexOf("/")+1)}` : undefined
+            };
+        
+            try {
+                const categorie = await Categorie.findById(req.body.idCategorie);
+        
+                if (!categorie) {
+                    return res.status(400).json({ error: 'Invalid category ID' });
+                }
+        
+                const produit = await Produit.create(newProduit);
+                return res.status(200).json(produit);
+        
+            } catch (err) {
+                return res.status(500).json({ error: err.message });
+            }
         }
-
-        const produit = await Produit.create(newProduit);
-        return res.status(200).json(produit);
-
-    } catch (err) {
-        return res.status(500).json({ error: err.message });
-    }
-}
 
 export function getOnce(req, res) {
     Produit.findById(req.params.id)
@@ -79,11 +76,6 @@ export function getOnce(req, res) {
 }
 
 export function putOnce(req, res) {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-        return res.status(400).json({ errors: errors.array() });
-    }
-
     const updatedProduit = {
         title: req.body.title,
         description: req.body.description,
