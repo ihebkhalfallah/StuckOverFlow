@@ -3,6 +3,7 @@ import mongoose from "mongoose";
 import cors from "cors";
 import morgan from "morgan";
 import dotenv from "dotenv";
+//iheb
 import { errorHundler, notFoundError } from "./middlewares/errorr-handler.js";
 import userRoutes from "./routes/user.js";
 import coachRoutes from "./routes/coach.js";
@@ -10,10 +11,15 @@ import nutritionnisteRoutes from "./routes/nutritionniste.js";
 import adminRoutes from "./routes/admin.js";
 import authRoutes from "./routes/auth.js";
 import approveRoutes from "./routes/approve.js";
-import { createAdmin } from "./controllers/adminSeed.js";
 import passport from "passport";
 import session from "express-session";
+//zouhour
+import seanceRoutes from "./routes/seance.js";
+import reservationRoutes from "./routes/reservation.js";
 
+import { ResetJob } from "./controllers/coach.js";
+
+// dotenv file
 dotenv.config({ path: ".env" });
 
 mongoose.set("debug", true);
@@ -25,6 +31,7 @@ const databaseName = process.env.DATABASENAME;
 const db_url = process.env.DB_URL;
 app.use(express.json());
 
+// initialization of session
 app.use(
   session({
     secret: process.env.SESSION_SECRET,
@@ -32,9 +39,11 @@ app.use(
     saveUninitialized: true,
   })
 );
-
+// passport initialization
 app.use(passport.initialize());
 app.use(passport.session());
+
+
 
 mongoose
   .connect(`${db_url}/${databaseName}`)
@@ -56,10 +65,15 @@ app.use("/nutritionniste", nutritionnisteRoutes);
 app.use("/admin", adminRoutes);
 app.use("/auth", authRoutes); 
 app.use("/approve", approveRoutes);
+app.use("/seance", seanceRoutes);
+app.use("/reservation", reservationRoutes);
 
 app.use(notFoundError);
 app.use(errorHundler);
 
+
 app.listen(port, () => {
-  console.log(`Server running at http://127.0.0.1:${port}/`);
+  console.log(`Server running at http://localhost:${port}/`);
 });
+// function to reset coaches disponibility
+ResetJob();

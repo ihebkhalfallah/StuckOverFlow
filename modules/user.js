@@ -64,6 +64,14 @@ const userSchema = new Schema(
       type: Boolean,
       default: false,
     },
+    disponible: {
+      type: Boolean,
+      default: true,
+      required: true,
+    },
+    Spécialité: {
+      type: String,
+    },
   },
   {
     timestamps: true,
