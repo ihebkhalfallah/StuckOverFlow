@@ -1,3 +1,7 @@
 node_modules/
 .vscode
 .env
+.gitignore
+./controllers/user.js
+./routes/user.js
+./models/user.js
