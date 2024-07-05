@@ -1,5 +1,6 @@
 import { validationResult } from 'express-validator';
 import Categorie from '../models/categorie.js';
+import Produit from '../models/produit.js';
 
 export function getAll(req, res) {
     Categorie.find({})
@@ -50,12 +51,23 @@ export function putOnce(req, res) {
 }
 
 export function deleteOnce(req, res) {
-    Categorie.findByIdAndDelete(req.params.id)
-        .then(doc => {
-            if (!doc) {
-                return res.status(404).json({ error: "Category not found" });
+    const categoryId = req.params.id;
+
+    // Check if any products are associated with the category
+    Produit.findOne({ idCategorie: categoryId })
+        .then(product => {
+            if (product) {
+                return res.status(400).json({ error: "Category is assigned to products and cannot be deleted" });
             }
-            res.status(200).json({ message: "Category deleted successfully", category: doc });
+
+            // If no products are associated, delete the category
+            return Categorie.findByIdAndDelete(categoryId)
+                .then(doc => {
+                    if (!doc) {
+                        return res.status(404).json({ error: "Category not found" });
+                    }
+                    res.status(200).json({ message: "Category deleted successfully", category: doc });
+                });
         })
         .catch(err => res.status(500).json({ error: err.message }));
 }
