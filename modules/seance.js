@@ -20,7 +20,7 @@ const seanceSchema = new Schema(
       required: true,
     },
     IdSalleDeSport: {
-      type: Number,
+      type: String,
       required: true,
     },
     DateEvent: {

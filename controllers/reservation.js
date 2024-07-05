@@ -16,7 +16,7 @@ export const create = async (req, res) => {
             return res.status(400).json({ error: 'Invalid User ID' });
         }
 
-        if (!mongoose.Types.ObjectId.isValid(seanceId)) {
+        if (!seanceId) {
             return res.status(400).json({ error: 'Invalid seance ID' });
         }
         console.log("mrgl");
@@ -34,7 +34,7 @@ export const create = async (req, res) => {
 
         // Vérification de la disponibilité du coach
         const isDisponible = await checkDisponibilite(
-            coach._id,
+            seance.coach,
             seance.DateEvent,
             seance.HeureDebutEvent,
             seance.HeureFinEvent
@@ -50,7 +50,7 @@ export const create = async (req, res) => {
 
         // Création de la réservation
         const reservation = new Reservation({
-            User: coach._id,
+            User: UserId,
             seance: seance._id
         }); 
 
