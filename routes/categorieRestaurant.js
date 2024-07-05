@@ -8,26 +8,30 @@ import {
   updateOneCategorieRestaurant,
   deleteOneCategorieRestaurant,
 } from "../controllers/categorieRestaurant.js";
+import { checkAccountApproval, authorize } from "../middlewares/authorize.js";
 
 const router = express.Router();
+router.use(authorize(["ADMIN", "USER"]));
 
 router
   .route("/")
-  .get(getAllCategorieRestaurants)
+  .get(getAllCategorieRestaurants, authorize(["ADMIN", "USER"]))
   .post(
     multer("imageCategorieRestaurant", 5 * 1024 * 1024),
     body("libelle").isLength({ max: 20 }).notEmpty(),
-    addOneCategorieRestaurant
+    addOneCategorieRestaurant,
+    authorize(["ADMIN"])
   );
 
 router
   .route("/:id")
-  .get(getOneCategorieRestaurant)
+  .get(getOneCategorieRestaurant, authorize(["ADMIN", "USER"]))
   .put(
     multer("imageCategorieRestaurant", 5 * 1024 * 1024),
     body("libelle").isLength({ max: 20 }).notEmpty(),
-    updateOneCategorieRestaurant
+    updateOneCategorieRestaurant,
+    authorize(["ADMIN"])
   )
-  .delete(deleteOneCategorieRestaurant);
+  .delete(deleteOneCategorieRestaurant, authorize(["ADMIN"]));
 
 export default router;

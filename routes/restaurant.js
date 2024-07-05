@@ -10,10 +10,12 @@ import {
   getRestaurantsByAdresse,
   findRestaurantsNearPlace,
 } from "../controllers/restaurant.js";
+import authorize from "../middlewares/authorize.js";
 
 const router = express.Router();
 
 router.route("/adresse").get(getRestaurantsByAdresse);
+router.use(authorize(["ADMIN", "USER"]));
 
 router
   .route("/nearby")
@@ -21,26 +23,29 @@ router
     query("latitude").isFloat(),
     query("longitude").isFloat(),
     query("maxDistance").isInt(),
-    findRestaurantsNearPlace
+    findRestaurantsNearPlace,
+    authorize(["ADMIN", "USER"])
   );
 
 router
   .route("/")
-  .get(getAllRestaurants)
+  .get(getAllRestaurants, authorize(["ADMIN", "USER"]))
   .post(
     multer("imageRestaurant", 5 * 1024 * 1024),
     body("nomRestaurant").isLength({ max: 30 }),
-    addOneRestaurant
+    addOneRestaurant,
+    authorize(["ADMIN"])
   );
 
 router
   .route("/:id")
-  .get(getOneRestaurant)
+  .get(getOneRestaurant, authorize(["ADMIN", "USER"]))
   .put(
     multer("imageRestaurant", 5 * 1024 * 1024),
     body("nomRestaurant").isLength({ max: 30 }),
-    updateOneRestaurant
+    updateOneRestaurant,
+    authorize(["ADMIN"])
   )
-  .delete(deleteOneRestaurant);
+  .delete(deleteOneRestaurant, authorize(["ADMIN"]));
 
 export default router;
