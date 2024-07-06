@@ -1,6 +1,7 @@
 import Panier from '../models/panier.js';
 import Produit from '../models/produit.js';
 import nodemailer from 'nodemailer';
+import User from "../modules/user.js";
 
 const transporter = nodemailer.createTransport({
   service: 'gmail',
@@ -123,52 +124,44 @@ export async function validerPanier(req, res) {
             return res.status(404).json({ message: 'Panier non trouvé' });
         }
 
+        const user = await User.findById(userId)
         // Envoyer l'email de confirmation
         const mailOptions = {
             from: 'molka953@gmail.com',  // Utilisez staticEmail comme adresse de l'expéditeur
-            to: 'molkagmar1@gmail.com',  // Remplacez par l'email du client
+            to: user.email,  // Remplacez par l'email du client
             subject: 'Commande validée',
             text: `Votre commande a été validée. Notre service client va vous contacter bientôt.`
         };
 
-        transporter.sendMail(mailOptions, async (error, info) => {
+        transporter.sendMail(mailOptions, (error, info) => {
             if (error) {
                 console.error('Error sending email:', error);
                 return res.status(500).json({ error: error.message });
             } else {
                 console.log('Email sent:', info.response);
 
-                // Pour chaque produit dans le panier
-                for (const item of panier.produits) {
-                    try {
-                        const produit = await Produit.findById(item.produitId);
-                        if (!produit) {
-                            console.error(`Produit non trouvé: ${item.produitId}`);
-                            continue;
-                        }
-
-                        // Diminuer la quantité disponible du produit
-                        await Produit.findByIdAndUpdate(item.produitId, { $inc: { quantity: -item.quantity } });
-
-                        // Mettre à jour le statut d'achat du produit
-                        produit.achetePar = userId;
-                        produit.acheteLe = new Date();
-                        
-                        // Sauvegarder les modifications du produit
-                        await produit.save();
-                    } catch (error) {
-                        console.error(`Erreur lors de la mise à jour du produit ${item.produitId}: ${error.message}`);
-                    }
-                }
-
-                // Réinitialiser le panier de l'utilisateur
                 panier.produits = [];
                 panier.totalPrice = 0;
-                await panier.save();
+                panier.save();
 
                 res.status(200).json({ message: 'Commande validée et email envoyé avec succès' });
             }
         });
+
+        for (const item of panier.produits) {
+            try {
+                const produit = await Produit.findById(item.produitId);
+                if (!produit) {
+                    console.error(`Produit non trouvé: ${item.produitId}`);
+                    continue;
+                }
+
+                // Diminuer la quantité disponible du produit
+                await Produit.findByIdAndUpdate(item.produitId, { $inc: { quantity: -item.quantity } });
+            } catch (error) {
+                console.error(`Erreur lors de la mise à jour du produit ${item.produitId}: ${error.message}`);
+            }
+        }
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
