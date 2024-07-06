@@ -69,7 +69,7 @@ const userSchema = new Schema(
       default: true,
       required: true,
     },
-    Spécialité: {
+    Speciality: {
       type: String,
     },
   },
