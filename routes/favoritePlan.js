@@ -4,15 +4,13 @@ import {
   getAllFavorites,
   removeFavorite,
 } from "../controllers/favoritePlan.js";
-import { checkAccountApproval, authorize } from "../middlewares/authorize.js";
 
 const router = express.Router();
-router.use(authorize(["USER"]));
 
-router.route("/").post(addFavorite, authorize(["USER"]));
+router.route("/").post(addFavorite);
 
-router.route("/:id").delete(removeFavorite, authorize(["USER"]));
+router.route("/:id").delete(removeFavorite);
 
-router.route("/:userId").get(getAllFavorites, authorize(["USER"]));
+router.route("/:userId").get(getAllFavorites);
 
 export default router;
