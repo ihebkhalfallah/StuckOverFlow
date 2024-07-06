@@ -123,6 +123,7 @@ async function login(req) {
   }
 
   const user = await getUserByEmail(email);
+  console.log(">>>>>>>>>>>>>>>>", user);
 
   if (!user) {
     throw { status: 401, message: "Invalid credentials" };

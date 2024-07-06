@@ -1,6 +1,9 @@
 import User from "../modules/user.js";
+
+import Seance from "../modules/seance.js";
 import bcrypt from "bcrypt";
 import crypto from "crypto";
+import schedule from "node-schedule"
 
 import { sendApprovalCode } from "../services/email.service.js";
 
@@ -150,3 +153,58 @@ export {
   updateCoach,
   changePasswordCoach,
 };
+
+
+export async function checkDisponibilite(idUser, dateEvent, heureDebutEvent, heureFinEvent) {
+  try {
+    // Chercher l'utilisateur avec l'ID fourni
+    const user = await User.findById(idUser);
+
+    // Vérifier que l'utilisateur existe et qu'il a le rôle de coach
+    if (!user || user.role !== "COACH") {
+      throw new Error("L'utilisateur spécifié n'existe pas ou n'est pas un coach.");
+    }
+
+    // Convertir les dates/heures en objets Date
+    const date = new Date(dateEvent);
+    const heureDebut = new Date(`${dateEvent}T${heureDebutEvent}`);
+    const heureFin = new Date(`${dateEvent}T${heureFinEvent}`);
+
+    // Rechercher une séance qui chevauche les horaires spécifiés pour ce coach
+    const seance = await Seance.findOne({
+      DateEvent: dateEvent,
+      Coach: user._id,
+      $or: [
+        {
+          $and: [
+            { HeureDebutEvent: { $lte: heureDebutEvent } },
+            { HeureFinEvent: { $gte: heureDebutEvent } }
+          ]
+        },
+        {
+          $and: [
+            { HeureDebutEvent: { $lte: heureFinEvent } },
+            { HeureFinEvent: { $gte: heureFinEvent } }
+          ]
+        },
+        {
+          $and: [
+            { HeureDebutEvent: { $gte: heureDebutEvent } },
+            { HeureFinEvent: { $lte: heureFinEvent } }
+          ]
+        }
+      ]
+    });
+
+    // Retourner la disponibilité en fonction de la présence d'une séance existante
+    return seance ? false : true;
+
+  } catch (error) {
+    throw new Error("Erreur lors de la vérification de la disponibilité : " + error.message);
+  }
+}
+export function ResetJob() {
+  schedule.scheduleJob(" 19 * * *", () => {
+    User.updateMany({ role: "COACH" }, { disponible: true }).exec(); // Reset Disponibilite
+  });
+}
